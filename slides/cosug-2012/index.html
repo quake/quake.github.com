@@ -251,28 +251,6 @@ end
       </div>
 
       <div class="slide">
-        <h1>Auto Scaling的条件选择</h1>
-        <div class="slidecontent">
-          <ul>
-            <li>根据Haproxy Statistics CSV Export或者Unix Socket，获取当前的Sessions数</li>
-            <li>大于某个指标，执行创建instance的脚本</li>
-            <li>小于某个指标，执行销毁instance的脚本</li>
-            <li>示例代码</li>
-          </ul>
-          <pre class="brush: ruby">
-avg_session_num = current_sessions / current_instances
-if avg_session_num > 800
-  add_new_server
-  update_ha_proxy
-elsif avg_session_num < 100
-  terminate_server
-  update_ha_proxy
-end
-          </pre>
-        </div>
-      </div>
-
-      <div class="slide">
         <h1>Auto Scaling不仅仅是OpenStack才有</h1>
         <div class="slidecontent">
           <ul>

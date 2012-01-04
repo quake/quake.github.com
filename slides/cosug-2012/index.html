@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>使用OpenStack实现Auto Scaling</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- metadata -->
+    <meta name="generator" content="S5" />
+    <meta name="version" content="S5 1.1" />
+    <meta name="presdate" content="20120108" />
+    <meta name="author" content="Quake Wang" />
+    <meta name="company" content="bihannet.com" />
+    <!-- configuration parameters -->
+    <meta name="defaultView" content="slideshow" />
+    <meta name="controlVis" content="show" />
+    <!-- style sheet links -->
+    <link rel="stylesheet" href="../s5/slides.css" type="text/css" media="projection" id="slideProj" />
+    <link rel="stylesheet" href="../s5/outline.css" type="text/css" media="screen" id="outlineStyle" />
+    <link rel="stylesheet" href="../s5/print.css" type="text/css" media="print" id="slidePrint" />
+    <link rel="stylesheet" href="../s5/opera.css" type="text/css" media="projection" id="operaFix" />
+    <!-- S5 JS -->
+    <script src="../s5/slides.js" type="text/javascript"></script>
+
+    <!-- syntaxhighlighter -->
+    <script src="../syntaxhighlighter/scripts/shCore.js" type="text/javascript"></script>
+    <script src="../syntaxhighlighter/scripts/shBrushRuby.js" type="text/javascript"></script>
+    <script src="../syntaxhighlighter/scripts/shBrushBash.js" type="text/javascript"></script>
+    <link href="../syntaxhighlighter/styles/shCore.css" rel="stylesheet" type="text/css" />
+    <link href="../syntaxhighlighter/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript"> 
+      SyntaxHighlighter.all();
+    </script>
+  </head>
+  <body>
+
+    <div class="layout">
+      <div id="controls"><!-- DO NOT EDIT --></div>
+      <div id="currentSlide"><!-- DO NOT EDIT --></div>
+      <div id="header"></div>
+      <div id="footer">
+        <h1>Shanghai/2012-01-08</h1>
+        <h2>使用OpenStack实现Auto Scaling</h2>
+      </div>
+    </div>
+
+
+    <div class="presentation">
+
+      <div class="slide">
+        <h1>使用OpenStack实现Auto Scaling</h1>
+        <h2></h2>
+        <h3>Quake Wang</h3>
+        <h4><a href="http://twitter.com/quakewang" target="_blank">twitter.com/quakewang</a></h4>
+      </div>
+
+
+      <div class="slide">
+        <h1>Auto Scaling简介</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>Auto Scaling是指自动给应用按需增加或者减少计算资源。</li>
+            <li>在实施云计算之前，实现Auto Scaling很困难，当应用已经达到使用硬件资源的上限，需要要再购买硬件资源以及进行OS/应用等安装。</li>
+            <li>在实施云计算之后，构建Auto Scaling的应用才变为可能，才能实现按需分配。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>为什么需要Auto Scaling</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>处理计划内（促销/节日/开新服）和计划外的突发应用高峰</li>
+            <li>不仅仅是scale-up，更重要的是scale-down，节约成本</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>几种适合作Auto Scaling的场景</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>Web Server，根据并发请求数或者带宽使用情况来作scale-up/down</li>
+            <li>Queue Server，根据队列里剩余的数量来作scale-up/down</li>
+            <li><del>DB Server不适合</del></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Web Server Auto Scaling实际例子</h1>
+        <div class="slidecontent">
+          <p>可扩展的架构 Haproxy + Nginx</p>
+          <table>
+            <tr>
+              <td><img src="images/haproxy-nginx.png"/></td>
+              <td>
+                <pre class="brush: bash">
+frontend http-in
+        bind *:80
+        default_backend servers
+
+backend servers
+        stats uri /admin?stats
+        balance roundrobin
+        server server1 10.199.18.11:80 maxconn 512
+        server server2 10.199.18.12:80 maxconn 512
+        server server3 10.199.18.13:80 maxconn 512
+                </pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>在OpenStack创建instance和snapshot</h1>
+        <div class="slidecontent">
+          <p>创建instance，安装好nginx以及应用</p>
+          <img src="images/instance.png"/>
+          <p>对这个instance作一次snapshot</p>
+          <img src="images/snapshot.png"/>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Scale up/down</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>Up: 通过snapshot launch更多的instance</li>
+            <li>Down: terminate过多的instance</li>
+            <li>Demo: <a href="http://10.199.18.3/application/test" target="_blank">Haproxy application test url</a></li>
+            <li>需要手工添加/减少instance和手工修改haproxy配置</li>
+            <li>可以快速Scale，但还不是自动</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling脚本 - Add Server</h1>
+        <div class="slidecontent">
+          OpenStack有多种语言的客户端（Python/Ruby/Php/Java/Curl)，这里用Ruby的<a href="https://github.com/rackspace/ruby-openstack-compute" target="_blank">openstack-compute</a>作例子:
+          <pre class="brush: ruby">
+require 'rubygems'
+require 'openstack/compute'
+
+auth_url = 'http://10.199.21.210:5000/v2.0/' #OpenStack keystone auth url
+image_id = '9'
+flavor_id = '1'
+
+cs = OpenStack::Compute::Connection.new(:username => 'username', :api_key => 'password', :auth_url => auth_url)
+image = cs.get_image(image_id)
+flavor = cs.get_flavor(flavor_id)
+
+newserver = cs.create_server(:name => "rails#{Time.now.strftime("%Y%m%d%H%M")}", :imageRef => image.id, :flavorRef => flavor.id)
+p "New Server #{newserver.name} created"
+
+while newserver.progress < 100
+  p "Server status #{newserver.status}, progress #{newserver.progress}"
+  sleep 10
+  newserver.refresh
+end
+p "Server status #{newserver.status}, progress #{newserver.progress}"
+p "Done"
+          </pre>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling脚本 - Run Add Server</h1>
+        <div class="slidecontent">
+          Demo时间，执行这个脚本：
+          <pre class="brush: bash">
+# ruby create_new_server.rb  
+"New Server rails201112161042 created"  
+"Server status BUILD, progress 0"  
+"Server status ACTIVE, progress 100"
+"Done"
+          </pre>
+          差不多30秒左右的时间，这台虚拟机就创建好了，我们可以在dashboard看到这台最新的instance。
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling脚本 - Update Haproxy</h1>
+        <div class="slidecontent">
+          再写一个脚本，自动更新haproxy的配置文件:
+          <pre class="brush: ruby">
+cs = OpenStack::Compute::Connection.new(:username => 'username', :api_key => 'password', :auth_url => auth_url)
+#预先定义一个haproxy template文件，backed server集群部分定义留空，将它拷贝过来
+`cp haproxy.cfg.template haproxy.cfg`
+
+File.open('haproxy.cfg', 'a') do |f|
+  cs.servers.each do |s|
+    server = cs.server(s[:id])
+    #如果该实例的镜像等于我们之前做的snapshot，将它的IP加入配置文件
+    if server.image['id'] == image_id
+      ip = server.addresses.first.address
+      p "Found matched server #{server.name} #{ip}, add to haproxy"
+      f.puts "        server #{server.name} #{ip}:80 maxconn 512"
+    end
+  end
+end
+
+#覆盖旧的haproxy配置文件，reload haproxy
+`cp haproxy.cfg /etc/haproxy.cfg`
+p "Reload haproxy"
+`/etc/init.d/haproxy reload`
+          </pre>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling脚本 - Run Update Haproxy</h1>
+        <div class="slidecontent">
+          Demo时间，执行这个脚本：
+          <pre class="brush: bash">
+# ruby update_haproxy.rb  
+"Found matched server rails201112161042 10.199.18.6, add to haproxy"
+"Found matched server rails201112161003 10.199.18.5, add to haproxy"
+"Found matched server rails201112160953 10.199.18.4, add to haproxy"
+"Found matched server rails201112160924 10.199.18.8, add to haproxy"
+"Reload haproxy"
+          </pre>
+
+          <a href="http://10.199.18.3/admin?stats" target="_blank">Haproxy Statistics</a>
+          <img src="images/haproxy-stats.png"/>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling的条件选择</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>根据Haproxy Statistics CSV Export或者Unix Socket，获取当前的Sessions数</li>
+            <li>大于某个指标，执行创建instance的脚本</li>
+            <li>小于某个指标，执行销毁instance的脚本</li>
+            <li>示例代码</li>
+          </ul>
+          <pre class="brush: ruby">
+avg_session_num = current_sessions / current_instances
+if avg_session_num > 800
+  add_new_server
+  update_ha_proxy
+elsif avg_session_num < 100
+  terminate_server
+  update_ha_proxy
+end
+          </pre>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling的条件选择</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>根据Haproxy Statistics CSV Export或者Unix Socket，获取当前的Sessions数</li>
+            <li>大于某个指标，执行创建instance的脚本</li>
+            <li>小于某个指标，执行销毁instance的脚本</li>
+            <li>示例代码</li>
+          </ul>
+          <pre class="brush: ruby">
+avg_session_num = current_sessions / current_instances
+if avg_session_num > 800
+  add_new_server
+  update_ha_proxy
+elsif avg_session_num < 100
+  terminate_server
+  update_ha_proxy
+end
+          </pre>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Auto Scaling不仅仅是OpenStack才有</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>Amazon, Rackspace, Libvirt...只要有API，就能实现</li>
+            <li><a href="https://github.com/fog/fog" target="_blank">Fog</a> - 提供各种云计算平台的统一接口</li>
+            <li><a href="http://support.rightscale.com/03-Tutorials/02-AWS/02-Website_Edition/Set_up_Autoscaling_using_Voting_Tags" target="_blank">Rightscale</a> - 提供集成监控的Auto Scaling设置</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>为什么DB Server不适合Auto Scaling？</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>Master/Slave，同步问题，可以scale-up slave，但是很难scale-down，</li>
+            <li>DB Shard，根据Hash/Key来分布存储，可以scale-up，但是无法scale-down</li>
+            <li>大家有什么好办法？</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide">
+        <h1>Q&A</h1>
+        <div class="slidecontent">
+          <ul>
+            <li>Email: <a href="mailto:quake.wang@gmail.com">quake.wang@gmail.com</a></li>
+            <li>Twitter: <a href="http://twitter.com/quakewang" target="_blank">twitter.com/quakewang</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>

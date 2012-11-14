@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Ruby Arduino Hacking</title>
+
+	<meta name="description" content="ruby arduino hacking - ruby conf china 2012">
+	<meta name="author" content="quake wang">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<link rel="stylesheet" href="../reveal.js/css/reveal.css">
+	<link rel="stylesheet" href="../reveal.js/css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	document.write( '<link rel="stylesheet" href="../reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+		<!--[if lt IE 9]>
+		<script src="../reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>ruby arduino hacking</h1>
+					<h3>Ruby Conf China 2012</h3>
+					<p><small>By <a href="http://twitter.com/quakewang">@quakewang</a></small></p>
+				</section>
+
+				<section>
+					<h2>About Arduino</h2>
+					<p><a href="http://www.arduino.cc/">http://www.arduino.cc/</a></p>
+					<blockquote cite="http://www.arduino.cc/">
+						Arduino is an open-source electronics prototyping platform based on flexible, easy-to-use hardware and software. 
+						It's intended for artists, designers, hobbyists, and anyone interested in creating interactive objects or environments. 
+					</blockquote>
+				</section>
+
+				<section>
+					<section>
+						<h2>Arduino Hello World</h2>
+						<p>flashing LED</p>
+						<img width="480" src="http://arduino.cc/en/uploads/Tutorial/ExampleCircuit_bb.png" alt="Arduino LED"></img>
+					</section>
+
+					<section>
+						<h2>Arduino Hello World</h2>
+						<p>flashing LED</p>
+						<pre><code contenteditable>
+							void setup() {                
+							  pinMode(13, OUTPUT);     
+							}
+
+							void loop() {
+							  digitalWrite(13, HIGH);
+							  delay(1000);
+							  digitalWrite(13, LOW);
+							  delay(1000);
+							}
+						</code></pre>
+					</section>					
+				</section>
+
+				<section>
+					<h2>Why Ruby</h2>
+					<p class="fragment">... Because ...</p>
+					<ul>
+						<li class="fragment">I like ruby</li>
+						<li class="fragment">Coding for fun</li>
+						<li class="fragment">Z-Turn</li>
+					</ul>					
+				</section>
+
+				<section>
+					<section>
+						<h2>RAD</h2>
+						<p>Ruby Arduino Development</p>
+						<p><a href="http://rad.rubyforge.org/">http://rad.rubyforge.org/</a></p>
+						<p>DSL, ruby2c</p>
+					</section>
+
+					<section>
+						<h2>RAD Example</h2>
+						<p class="fragment">gem install rad<p>
+						<p class="fragment">rad my_sketch</p>
+						<pre class="fragment"><code contenteditable>
+							class MySketch < ArduinoSketch
+							  output_pin 13, :as => :led
+							  def loop
+							    blink led, 1000
+							  end
+							end
+						</code></pre>
+						<p class="fragment">rake make:upload</p>
+					</section>
+
+					<section>
+						<h2>RAD Drawbacks</h2>
+						<p class="fragment">Only Support Ruby 1.8</p>
+						<p class="fragment">Inactive development</p>
+						<p class="fragment">Write - Upload - Run</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Serial Communication</h2>
+					<ol>
+						<li class="fragment">Arduino as INPUT/OUTPUT device</li>
+						<li class="fragment">Run complex logic / controller code on PC (internet, database, etc)</li>
+						<li class="fragment">Upload once, run multiple time</li>
+					</ol>
+				</section>
+
+				<section>
+					<section>
+						<h2>Ruby Serialport Gem</h2>
+						<p><a href="http://ruby-serialport.rubyforge.org/">http://ruby-serialport.rubyforge.org/</a></p>
+						<p>Ruby code</p>
+						<pre><code contenteditable>
+							require 'rubygems'
+							require 'serialport'
+
+							sp = SerialPort.new "/dev/ttyUSB0", 9600
+							sp.write "abcd"
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>Ruby Serialport Gem</h2>
+						<p>Arduino code</p>
+						<pre><code contenteditable>
+							int b = 0;
+
+							void setup() {
+							  Serial.begin(9600);
+							}
+
+							void loop() {
+							  if (Serial.available() > 0) {
+							    b = Serial.read();
+
+							    Serial.print("I received: ");
+							    Serial.println(b, DEC);
+							  }
+							}
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Protocol</h2>
+						<img src="./images/tone.png"></img>
+						<ul>
+							<ol>1 2 3 4 5 6 7</ol>
+							<ol>* => 1</ol>
+							<ol>. => 1 plus 1/2</ol>
+							<ol>_ => 1/2</ol>
+							<ol>- => 2</ol>
+							<ol>跑得快 => 3*4*5-</ol>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Protocol</h2>
+						<p>Ruby Code</p>
+						<pre><code contenteditable>
+							require 'rubygems'
+							require 'serialport'
+
+							sp = SerialPort.new "/dev/ttyUSB0", 9600
+							string = "12311231345-345-5.6_5.4_315.6_5.4_31151-151-0"
+							string.scan(/\d[_|\-|\.]?/) do |i|
+							  sp.write i.ljust(2, '*')
+							end
+						</code></pre>						
+					</section>
+
+					<section>
+						<h2>Protocol</h2>
+						<p>Arduino Code</p>
+						<pre><code contenteditable>
+						    c = Serial.read();
+						    if (c == '-') {   
+						      delay(1600);
+						    } else if (c == '.') {
+						      delay(600);    
+						    } else if (c == '*') {
+						      delay(400);      
+						    } else if (c == '_') {
+						      delay(200);
+						    } else if (c == '0') {
+						      noTone(8);
+						    } else {
+						      tone(8, pitches[c - '0']);
+						    }
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Firmata</h2>
+						<ul>
+							<li>Firmata is a generic protocol for communicating with microcontrollers from software on a host computer</li>
+							<li>Arduino StandardFirmata example code</li>
+							<li>Ruby Firmata: <a href="https://github.com/shokai/arduino_firmata">https://github.com/shokai/arduino_firmata</a></li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>LM35 Temperatur Sensor</h2>
+						<a href="http://www.ti.com/lit/ds/symlink/lm35.pdf">http://www.ti.com/lit/ds/symlink/lm35.pdf</a>
+						<img src="./images/LM35_1.png" width="420"/>
+						<img src="./images/LM35_2.png" width="420"/>
+					</section>
+
+					<section>
+						<h2>Sinatra + Arduino</h2>
+						<pre><code contenteditable>
+							require 'rubygems'
+							require 'sinatra'
+							require 'arduino_firmata'
+
+							arduino = ArduinoFirmata.connect
+
+							get '/' do
+							  analog = arduino.analog_read(0)
+							  temperature = analog * 100 * 5.0 / 1023
+							  "Now Temperature: #{temperature.round(2)}"
+							end
+						</code></pre>
+
+						<a href="http://localhost:4567/">http://localhost:4567/</a>
+					</section>
+
+					<section>
+						<h2>Personal Weather Station</h2>
+						<ul>
+							<li class="fragment">MG811 CO2 Sensor <br/> <img src="./images/MG811_CO2.png" width="100"/></li>
+							<li class="fragment">DSM501A Dust Sensor <br/> <img src="./images/DSM501A_DUST.jpg" width="100"/></li>
+							<li class="fragment"><img src="./images/pm2.5.png"/></li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Control Electric</h2>
+						<p>With Infrared Ray</p>
+						<img src="./images/ir_sender.png" width="300"/>						
+						<img src="./images/socket.png" width="300"/>
+					</section>
+
+					<section>
+						<h2>Control Electric</h2>
+						<p>With Infrared Ray</p>
+						<pre><code contenteditable>
+							require 'rubygems'
+							require 'sinatra'
+							require 'serialport'
+
+							sp = SerialPort.new "/dev/ttyUSB0", 9600
+
+							get '/switch' do
+							  sp.write("1")
+							  "&lt;a href='/switch'&gt;switch&lt;/a&gt;"
+							end
+						</code></pre>
+						<a href="http://localhost:4567/switch">http://localhost:4567/switch</a>
+					</section>
+
+					<section>
+						<h2>Control Electric</h2>
+						<p>With Relay</p>
+						<p><img src="./images/relay.jpg" width="200"/></p>
+						<ul>
+							<li>Queryable state</li>
+							<li>Reliable</li>
+							<li>Inexpensive</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Continuous Integration</h2>
+						<p>Using Lava Lamps for Continuous Integration</p>
+						<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/1990s_Mathmos_Astro.jpg/360px-1990s_Mathmos_Astro.jpg" width="300"/>
+					</section>
+
+					<section>
+						<h2>Tweet-a-Pot</h2>
+						<p>Twitter Enabled Coffee Pot</p>
+						<a href="http://www.instructables.com/id/Tweet-a-Pot-Twitter-Enabled-Coffee-Pot/">http://www.instructables.com/id/Tweet-a-Pot-Twitter-Enabled-Coffee-Pot/</a>
+						<img src="http://www.instructables.com/files/deriv/FB9/82D5/GIH8NCRG/FB982D5GIH8NCRG.LARGE.jpg" width="500"/>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Mini PC</h2>
+						<p>Raspberry pi</p>
+						<img src="http://www.raspberrypi.org/wp-content/uploads/2012/05/arduinopi.jpg" width="500"/>
+					</section>
+
+					<section>
+						<h2>Mini PC</h2>
+						<p>Ubuntu on MK802</p>
+						<img src="./images/mk802.png" width="500"/>
+						<p>Trying...</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>FAQ</h2>
+				</section>				
+			</div>
+
+		</div>
+		<script src="../reveal.js/lib/js/head.min.js"></script>
+		<script src="../reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+				{ src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+				{ src: '../reveal.js/plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+				{ src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+				{ src: '../reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+				{ src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+				{ src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+</script>
+
+</body>
+</html>

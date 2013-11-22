@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Prawn</title>
+
+	<meta name="description" content="Prawn | Fast, Nimble PDF Writer for Ruby">
+	<meta name="author" content="quake wang">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<link rel="stylesheet" href="../reveal.js/css/reveal.css">
+	<link rel="stylesheet" href="../reveal.js/css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	document.write( '<link rel="stylesheet" href="../reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+		<!--[if lt IE 9]>
+		<script src="../reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>Prawn</h1>
+					<h3>Fast, Nimble PDF Writer for Ruby</h3>
+					<h3><image src="images/prawn.png"/></h3>
+					<p><small>By <a href="http://twitter.com/quakewang">@quakewang</a></small></p>
+				</section>
+
+				<section>
+					<h2>About Prawn</h2>
+					<p><a href="http://prawn.majesticseacreature.com/">http://prawn.majesticseacreature.com/</a></p>
+					<p>Ruby PDF生成方案</p>
+					<ul>
+						<li>丰富的DSL
+						<li>像素级控制
+						<li>Unicode支持
+						<li>目录支持
+					</ul>
+				</section>
+
+				<section>
+					<h2>Prawn v.s. Html2Pdf</h2>
+					<p><a href="http://chanyouji.com">http://chanyouji.com</a></p>
+					<img src="images/chanyouji-pdf.png"/>
+				</section>
+
+				<section>
+					<h2>Prawn v.s. Html2Pdf</h2>
+					<p><a href="http://javaeye.com">http://javaeye.com</a></p>
+					<img src="images/javaeye-pdf.png"/>
+				</section>				
+
+				<section>
+					<h2>中文字体处理</h2>
+					<pre><code contenteditable>
+						font_families["msyh"] = {
+						  :normal => { :file => "#{FONTS_PATH}/msyh/msyh.ttf" },
+						  :bold => { :file => "#{FONTS_PATH}/msyh/msyhbd.ttf" }
+						}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>本地图片处理</h2>
+					<pre><code contenteditable>
+					image "#{IMAGES_PATH}/left-quote.png", :position => 0, :vposition => :top
+					image "#{IMAGES_PATH}/right-quote.png", :position => bounds.width - 130, :vposition => :bottom
+					</code></pre>
+
+					<img src="images/local-image.png"/>
+				</section>
+
+				<section>
+					<h2>远程图片处理</h2>
+					<pre><code contenteditable>
+						image(
+						  open(url), 
+						  :fit => [bounds.width, bounds.height], 
+						  :vposition => :center, 
+						  :position => :center
+						)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>文本定位和自适应</h2>
+					<pre><code contenteditable>
+					text_box string, 
+						:at => [0, cursor], 
+						:width => bounds.width, 
+						:height => 60, 
+						:overflow => :shrink_to_fit, 
+						:valign => :center, 
+						:align => :center
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>行内文本颜色控制</h2>
+					<pre><code contenteditable>
+					text "The &lt;color rgb='FF0000'&gt;end&lt;/color&gt;", :inline_format => true, :align => :center
+					</code></pre>
+					<img src="images/text-format.png"/>
+				</section>
+
+				<section>
+					<h2>目录生成</h2>
+					<pre><code contenteditable>
+					outline.define do
+					  page :title => trip_name, :destination => 1
+					  data.each do |s|
+					    section(s[:title], :destination => s[:page], :closed => false) do
+					      s[:nodes].each do |n|
+					        page :title => n[:title], :destination => n[:page]
+					      end
+					    end
+					  end
+					end
+				  </code></pre>
+		    </section>
+
+				<section>
+					<h2>更多的DSL</h2>
+					<ul>
+						<li>Graphics</li>
+						<li>Table</li>
+						<li>Grid Layout</li>
+						<li>Template</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>坑</h2>
+					<ul>
+						<li>内存泄漏</li>
+						<li>Unicode自动换行 (split, join Prawn::Text::ZWSP)</li>
+						<li>fill_color / stroke_color / font_size 重置</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>FAQ</h2>
+					<p>顺带广告：<a href="http://chanyouji.com">蝉游记</a></p>
+				</section>
+			</div>
+
+		</div>
+		<script src="../reveal.js/lib/js/head.min.js"></script>
+		<script src="../reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+				{ src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+				{ src: '../reveal.js/plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+				{ src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+				{ src: '../reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+				{ src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+				{ src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+</script>
+
+</body>
+</html>

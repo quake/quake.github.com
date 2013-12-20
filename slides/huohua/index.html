@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>为什么蝉游记只有一个后台程序员</title>
+
+  <meta name="description" content="changyouji.com">
+  <meta name="author" content="quake wang">
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+  <link rel="stylesheet" href="../reveal.js/css/theme/default.css" id="theme">
+
+  <!-- For syntax highlighting -->
+  <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+  <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+  <script>
+  document.write( '<link rel="stylesheet" href="../reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+  </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>蝉游记</h1>
+          <h3>为什么只有一个后台程序员</h3>
+          <p><small>By <a href="http://twitter.com/quakewang">@quakewang</a></small></p>
+        </section>
+
+        <section>
+          <h2>关于蝉游记</h2>
+          <p>以下是广告时间</p>
+          <ul>
+            <li class="fragment"><a href="http://chanyouji.com/">http://chanyouji.com/</a></li>
+            <li class="fragment"><a href="https://itunes.apple.com/cn/app/id559653959?mt=8">https://itunes.apple.com/cn/app/id559653959?mt=8</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>为什么</h2>
+          <p>因为</p>
+          <ul>
+            <li class="fragment">我们的产品汪和设计狮都会写代码</li>
+            <li class="fragment"><img src="images/poor.png" class="fragment"/></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>以下才是干货时间</h2>
+          <p>因为</p>
+          <ul>
+            <li class="fragment">高生产力的语言和框架</li>
+            <li class="fragment">云平台</li>
+            <li class="fragment">第3方服务</li>
+          </ul>
+        </section>
+
+
+        <section>
+          <h2>程序员眼中的程序员</h2>
+          <img src="images/pl.jpg"/>
+        </section>
+
+
+        <section>
+          <h2>Ruby</h2>
+          <pre><code contenteditable>
+1.upto(3) {|i| puts i}
+          </code></pre>
+          <pre><code contenteditable>
+1
+2
+3
+          </code></pre>
+        </section>
+
+
+        <section>
+          <h2>Ruby</h2>
+          <pre><code contenteditable>
+"The quick brown fox jumps over the lazy dog".downcase.split("").uniq.sort.join
+          </code></pre>
+
+          <pre><code contenteditable>
+" abcdefghijklmnopqrstuvwxyz"
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby</h2>
+          <pre><code contenteditable>
+class Time
+  def yesterday
+    self - 86400
+  end
+end
+          </code></pre>
+          <pre><code contenteditable>
+today = Time.now
+yesterday = today.yesterday
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby</h2>
+          <pre><code contenteditable>
+COLORS = { black:   "000",
+           red:     "f00",
+           green:   "0f0",
+           yellow:  "ff0",
+           blue:    "00f"
+          }
+
+class String
+  COLORS.each do |color,code|
+    define_method "in_#{color}" do
+      "&lt;span style='color: ##{code}'>#{self}&lt;/span>"
+    end
+  end
+end
+          </code></pre>
+          <pre><code contenteditable>
+"Hello, World!".in_blue
+ => "&lt;span style='color: #00f'>Hello, World!&lt;/span>"
+           </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby on Rails</h2>
+          <p>ActiveRecord</p>
+          <pre><code contenteditable>
+User.create(name: "David", occupation: "Code Artist")
+          </code></pre>
+          <pre><code contenteditable>
+Blog.where(created_at: 1.week.ago.beginning_of_week..1.week.ago.end_of_week).order(view_counts: :desc).first.subject
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby on Rails</h2>
+          <p>Resource Routing</p>
+          <pre><code contenteditable>
+resources :trips
+          </code></pre>
+          
+          <pre><code contenteditable>
+namespace :api do
+  resources :trips
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby on Rails</h2>
+          <p>Web开发最佳实践</p>
+          <ul>
+            <li>Database Migration</li>
+            <li>Asset Pipeline</li>
+            <li>Cache</li>
+            <li>Turbolinks</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>结论</h2>
+          <ul>
+            <li>选择更有生产力的语言</li>
+            <li>选择最佳实践的框架</li>
+            <li>1个程序员可以完成N个程序员的活</li>
+            <li class="fragment">@老板，发N倍工资吗</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>运维人员去哪了？</h2>
+          <img src="images/op.jpg"/>
+        </section>
+
+        <section>
+          <h2>云主机</h2>
+          <p>为我们这种创业团队解决如下问题</p>
+          <ul>
+            <li class="fragment">人员问题：基础架构技术人员、运维管理人员。</li>
+            <li class="fragment">时间成本：机房调研，硬件采购周期，基础架构的搭建与运维管理。</li>
+            <li class="fragment">硬件成本：服务器，机房托管费用。</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>如何选择云主机提供商</h2>
+          <ul>
+            <li class="fragment">类似案例</li>
+            <li class="fragment">搜索： 吐槽 XXX</li>
+            <li class="fragment">试用，试用，再试用</li>
+            <li class="fragment">选最贵的AWS</li>
+            <li class="fragment">我们选择了ucloud.cn (请将广告费汇入我的账户)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>秘密武器</h2>
+          <a href="http://alibench.com/">http://alibench.com/</a>
+          <a href="http://alibench.com/rp/db85a3a08e0c3c753e0745ddde3d18ab">
+            <img src="images/alibench1.png">
+          </a>
+        </section>
+
+        <section>
+          <h2>云存储</h2>
+          <p>为我们这种UGC项目解决如下问题</p>
+          <ul>
+            <li>架构问题：安全存储，扩容</li>
+            <li>图片问题：高清大图和下载速度的矛盾</li>
+            <li>成本问题：存储硬件和带宽成本</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>如何选择云存储提供商</h2>
+          <ul>
+            <li class="fragment">功能特性</li>
+            <li class="fragment">类似案例</li>
+            <li class="fragment">搜索： 吐槽 XXX</li>
+            <li class="fragment">我们选择了qiniu.com (请将广告费汇入我的账户)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>再次用上秘密武器</h2>
+          <a href="http://alibench.com/">http://alibench.com/</a>
+          <a href="http://alibench.com/rp/3aa592f2bc15fe8b018d713a28c15e1d">
+            <img src="images/alibench2.png">
+          </a>
+        </section>
+
+        <section>
+          <h2>第3方服务之监控</h2>
+          <a href="http://newrelic.com">New Relic</a>
+          <img src="images/newrelic1.png"/>
+        </section>
+
+        <section>
+          <h2>不仅仅是监控</h2>
+          <img src="images/newrelic2.png"/>
+        </section>
+
+        <section>
+          <h2>第3方服务之邮件发送</h2>
+          <ul>
+            <li>配置问题：配置邮件服务是Linux世界里面最难的事情</li>
+            <li>到达率问题：DKIM, Domain Key, White List 等等</li>
+            <li>邮件效果追踪：打开，点击，转化率</li>
+            <li><a href="http://sendgrid.com/">Send Grid</a></li>
+            <li><img src="images/sendgrid.png"/></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>结论</h2>
+          <ul>
+            <li>选择靠谱的云平台</li>
+            <li>选择便捷的第3方服务</li>
+            <li>开发程序员也可以完成运维的活</li>
+            <li class="fragment">@老板，给我再多发一份运维工程师的工资吗</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>FAQ</h2>
+          <p>最后还要广告：<a href="http://chanyouji.com">蝉游记</a></p>
+        </section>
+      </div>
+
+    </div>
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+        { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: '../reveal.js/plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '../reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+        { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+</script>
+
+</body>
+</html>

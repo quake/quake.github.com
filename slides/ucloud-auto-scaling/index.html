@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>UCloud实践之Auto Scaling</title>
+
+		<meta name="description" content="UCloud实践之一">
+		<meta name="author" content="quake wang">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+		<link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>使用UCloud API实现Auto Scaling</h1>
+					<p>
+						<small>Created by <a href="http://weibo.com/quakewang">quake wang</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Auto Scaling简介</h2>
+					<ul>
+						<li>自动给应用按需增加或者减少计算资源</li>
+						<li>是成本控制和资源管理的重要组成部分</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Auto Scaling方式</h2>
+					<ol>
+						<li>根据监控数据动态安排:<br/>比如监控到CPU使用率持续增加,并且都在60%以上,增加服务器数量;CPU使用率持续减少,并且都在40%以下,减少服务器数量,应付突发的访问高峰</li>
+						<li>根据可预测条件固定安排:<br/>比如每周五晚上5点开始增加服务器数量,每周日晚上12点开始减少服务器数量,应付周末的访问高峰</li>
+					</ol>
+				</section>
+
+				<section>
+					<h2>根据监控数据安排流程图</h2>
+					<pre>
+		因为UCloud提供了监控/负载均衡等完整的服务
+		流程就变得简单许多:
+		+---------------+   +----------------+
+		|               |   |                |
+		|    UMon       +---+  Check         |
+		|               |   |                |
+		+--+------------+   +---+----+-------+
+		   |                    |    |
+		   |                Add |    | Delete
+		   v                    |    |
+		+------------------------------------+
+		| ULB                   |    |       |
+		|                       v    v       |
+		|      +--------+     +--------+     |
+		|      |        |     |        |     |
+		|      | UHost1 |     | UHost2 |     |
+		|      |        |     |        |     |
+		|      +--------+     +--------+     |
+		|                                    |
+		+------------------------------------+
+		通过监控(UMon)获取负载均衡(ULB)或者云主机(UHost)的数据
+		根据检查条件来判断需要从负载均衡中添加或者删除云主机
+					</pre>
+				</section>
+
+				<section>
+					<h2>在演示代码之前的说明</h2>
+					<p class="fragment">本PPT所有代码基于<a href="https://gitcafe.com/quake/ucloud-ruby-sdk">ruby</a></p>
+					<p class="fragment">通过调用<a href="http://docs.ucloud.cn/api/index.html">UCloud API</a>完成</p>
+					<p class="fragment">为什么用ruby?</p>
+					<p class="fragment">因为ruby语言简洁易懂</p>
+					<p class="fragment">而且我只会ruby...</p>
+				</section>
+
+				<section>
+					<h2>获取标准镜像</h2>
+					<pre><code>
+require 'ucloud_ruby_sdk'
+
+@client = UCloud::Client.new('公钥', '私钥', 'cn-north-03')
+result = @client.execute('DescribeImage',
+  ImageType: 'Base', OsType: 'Linux')
+
+image = result['ImageSet'].find{|img|
+	img['ImageName'] == 'Ubuntu 14.04 32位'}
+
+image_id = image['ImageId']
+p "Ubuntu 14.04 32位镜像ID: #{image_id}"
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>创建云主机(UHost)</h2>
+					<pre><code>
+def create_uhost(image_id)
+  result = @client.execute('CreateUHostInstance',
+    ImageId: image_id, ChargeType: 'Dynamic',
+    LoginMode: 'Password', Password: 'UjAwdG1lCg==',
+    CPU: 1, Memory: 2048, DiskSpace: 10)
+
+  uhost_id = result['UHostIds'].first
+  p "UHost创建成功, ID: #{uhost_id}"
+  return uhost_id
+end
+uhost_id = create_uhost(image_id)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>在UHost安装你的应用</h2>
+					<img src="images/uhost.png"/>
+				</section>
+
+				<section>
+					<h2>创建负载均衡(ULB)</h2>
+					<pre><code>
+result = @client.execute('CreateULB')
+ulb_id = result['ULBId']
+p "创建ULB成功, ID: #{ulb_id}"
+
+result = @client.execute('AllocateEIP', OperatorName: 'Bgp', Bandwidth: 2)
+eip = result['EIPSet'].first
+p "分配弹性IP成功, ID: #{eip['EIPId']}, Addr: #{eip['EIPAddr'].first['IP']}"
+
+@client.execute('BindEIP', EIPId: eip['EIPId'], ResourceType: 'ulb', ResourceId: ulb_id)
+p "绑定弹性IP到ULB成功"
+
+result = @client.execute('CreateVServer', ULBId: ulb_id)
+vserver_id = result['VServerId']
+p "创建VServer成功, ID: #{vserver_id}"
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>添加UHost到ULB</h2>
+					<pre><code>
+def add_uhost_to_ulb(uhost_id, vserver_id, ulb_id)
+  result = @client.execute('AllocateBackend',
+    ULBId: ulb_id, VServerId: vserver_id,
+    ResourceType: 'UHost', ResourceId: uhost_id)
+
+  backend_id = result['BackendId']
+  p "添加UHost到ULB后端实例成功, ID: #{backend_id}"
+  return backend_id
+end
+add_uhost_to_ulb(uhost_id, vserver_id, ulb_id)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>UCloud控制台</h2>
+					<img src="images/ulb.png"/>
+					<p>以上创建UHost/ULB等操作都可以在UCloud控制台进行</p>
+				</section>
+
+				<section>
+					<h2>对安装好应用的UHost制作镜像</h2>
+					<pre><code>
+def create_custom_image(uhost_id)
+  result = @client.execute('CreateCustomImage',
+    UHostId: uhost_id, ImageName: '自定义镜像')
+  image_id = result['ImageId']
+  p "创建自定义镜像成功, ID: #{image_id}"
+  return image_id
+end
+image_id = create_custom_image(uhost_id)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>用ab来简单模拟用户访问</h2>
+					<pre><code>
+ab -c 2 -n 10000 http://123.59.52.172/
+ab -c 10 -n 50000 http://123.59.52.172/
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>获取监控数据</h2>
+					<pre><code>
+result = @client.execute('GetMetric',
+  MetricName: ['NetworkOut'], ResourceType: 'ulb', ResourceId: ulb_id)
+last_value = result['DataSets']['NetworkOut'].last['Value']
+p "最新的网络出口流量是: #{last_value}"
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>根据条件来scale up/down</h2>
+					<pre><code>
+if last_value > 102400
+  uhost_id = create_uhost(image_id)
+  add_uhost_to_ulb(uhost_id, vserver_id, ulb_id)
+elsif last_value < 1024
+  terminate_uhost(uhost_id)
+end
+					</code></pre>
+					<p><small>备注: 这里用ulb的网络流量来做demo, 实际更好的指标是uhost的cpu使用率</small></p>
+				</section>
+
+
+				<section>
+					<h2>END</h2>
+					<p>请投我一票 :)</p>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+		<script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../reveal.js-3.0.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../reveal.js-3.0.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../reveal.js-3.0.0/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+					{ src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

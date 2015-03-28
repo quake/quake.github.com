@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Lego和Ruby</title>
+
+		<meta name="description" content="Lego,ev3dev,ruby">
+		<meta name="author" content="quake wang">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+		<link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Lego 和 Ruby</h1>
+					<p>
+						<small>Created by <a href="http://weibo.com/quakewang">quake wang</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Lego系列</h2>
+					<ul>
+						<li>城市系列</li>
+						<li>街景系列</li>
+						<li>创意系列</li>
+						<li>科技系列</li>
+						<li>...</li>
+						<li><a href="http://jingyan.smzdm.com/p/159">http://jingyan.smzdm.com/p/159</a></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>科技系列 Lego Technic</h2>
+					<p>科技系列运用了齿轮组、马达和遥控等机械部件，使乐高能够真正的动起来，因此可玩性更高。</p>
+					<img src="images/42000.jpg" height="300">
+					<img src="images/8043.jpg" height="300">
+				</section>
+
+				<section>
+					<h2>科技系列之机器人 EV3</h2>
+					<p>最新一代的乐高机器人，支持多种传感器和马达，通过编程控制输入输出，程序员的好玩具。</p>
+					<img src="images/ev3.jpg" height="300">
+				</section>
+
+				<section>
+					<h2>可视化的编程界面</h2>
+					<img src="images/ide.jpg">
+				</section>
+
+				<section>
+					<h2>ev3dev</h2>
+					<p><a href="http://www.ev3dev.org/">ev3dev</a>是一个可运行在EV3控制器上的Linux发行版, 是一个完整的Debian发行版本</p>
+					<img src="images/booting.png" height="300">
+				</section>
+
+				<section>
+					<h2>声音</h2>
+					<pre><code>
+beep -f 200 -l 500 # 220 Hz for 500 ms
+
+beep -f 262 -l 180 -d 20 -r 2 \
+-n -f 392 -l 180 -d 20 -r 2 \
+-n -f 440 -l 180 -d 20 -r 2 \
+-n -f 392 -l 380 -d 20 \
+-n -f 349 -l 180 -d 20 -r 2 \
+-n -f 330 -l 180 -d 20 -r 2 \
+-n -f 294 -l 180 -d 20 -r 2 \
+-n -f 262 -l 400 # twinkle twinkle little star
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Text To Speech</h2>
+					<pre><code>
+espeak "Hello! I am EV3，I like to talk because I am a robot." \
+--stdout | aplay
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>超声波传感器</h2>
+					<pre><code>
+cat /sys/class/lego-sensor/sensor3/port_name
+
+watch -n 1 cat /sys/class/lego-sensor/sensor3/value0
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>平衡传感器</h2>
+					<pre><code>
+cat /sys/class/lego-sensor/sensor1/port_name
+
+echo GYRO-RATE > /sys/class/lego-sensor/sensor1/mode
+
+watch -n 1 cat /sys/class/lego-sensor/sensor1/value0
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>马达 - 运行1秒钟</h2>
+					<pre><code>
+cd /sys/class/tacho-motor/motor0/
+cat port_name
+echo time > run_mode
+echo 50 > duty_cycle_sp
+echo 1000 > time_sp
+echo 1 > run
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>马达 - 更精确的控制</h2>
+					<pre><code>
+cd /sys/class/tacho-motor/motor1/
+cat port_name
+watch -n 1 cat position
+
+echo position > run_mode
+echo on > regulation_mode
+echo 500 > pulses_per_second_sp
+echo 0 > position_sp
+echo 1 > run
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Bash Script</h2>
+					<pre><code>
+for i in {1..6}
+do
+  if [ $(($i%2)) == 0 ]; then
+    echo 50 > position_sp
+  else
+    echo -50 > position_sp
+  fi
+  echo 1 > run
+  sleep 2
+done
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Linux - 一切皆文件</h2>
+					<ul>
+						<li class="fragment">ev3dev将传感器和马达的操作映射到了文件系统, 变成了统一的文件操作.</li>
+						<li class="fragment">可以用任何语言通过读写文件来控制ev3</li>
+						<li class="fragment">包括我最喜欢的Ruby</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>ev3dev ruby gem</h2>
+					<a href="https://github.com/quake/ev3dev_ruby">https://github.com/quake/ev3dev_ruby</a>
+					<pre><code>
+require 'ev3dev'
+s = Ev3dev::Sensor.new(4)
+10.times do
+  puts s.value0
+  sleep 0.5
+end
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Ruby的method missing</h2>
+					<pre><code>
+def method_missing(name, *args, &block)
+  raise "no device connected" if @device_path.nil?
+  param = File.join @device_path, name.to_s
+  raise "no such attribute: #{param}" unless File.exist? param
+  if args.first.nil?
+    IO.read(param).strip
+  else
+    IO.write param, args.first.to_s
+  end
+end
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Bash Script对应的ruby版本</h2>
+					<pre><code>
+require 'ev3dev'
+
+m = Ev3dev::Motor.new('C')
+m.run_mode(:position).regulation_mode(:on).pulses_per_second_sp(500)
+
+6.times do |i|
+  m.position_sp(i % 2 == 0 ? 50 : -50)
+  m.go
+  sleep 2
+end
+					</code></pre>
+				</section>
+
+
+			</div>
+
+		</div>
+
+		<script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+		<script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../reveal.js-3.0.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../reveal.js-3.0.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../reveal.js-3.0.0/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+					{ src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

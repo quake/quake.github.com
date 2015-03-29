@@ -224,9 +224,32 @@ end
 					</code></pre>
 				</section>
 
+				<section>
+					<h2>可以使用ruby所有功能</h2>
+<pre><code>
+require 'rack'
+require 'ev3dev'
+
+color_sensor = Ev3dev::Sensor.new(1).mode('COL-COLOR')
+colors = %w(黑 蓝 绿 黄 红 白 褐)
+
+app = Proc.new do |env|
+  color = color_sensor.value0.to_i
+  ['200', {'Content-Type' => 'text/html'},
+  ['&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="refresh" content="1"/&gt;&lt;/head&gt;&lt;body&gt;',
+  color > 0 ? "我识别到了#{colors[color - 1]}色" : "没有识别到任何颜色",
+  '&lt;/body&gt;&lt;/html&gt;']]
+end
+
+Rack::Handler::WEBrick.run app, Host: '0.0.0.0'
+</code></pre>
+				</section>
+
+			<section>
+				<h2>End</h2>
+			</section>
 
 			</div>
-
 		</div>
 
 		<script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>

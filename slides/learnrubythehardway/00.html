@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>learn ruby the hard way</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>learn ruby the hard way</h1>
+          <p>
+            <small><a href="http://learnrubythehardway.org/" target="_blank">http://learnrubythehardway.org/</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>为什么用这个做教材</h2>
+          <ul>
+            <li>七天七语言（不靠谱）</li>
+            <li>21天精通java（不靠谱）</li>
+            <li>做好每小节的练习</li>
+            <li>不要复制粘帖</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>操作系统</h2>
+          <ul>
+            <li>Linux(强烈推荐)</li>
+            <li>MacOS(推荐)</li>
+            <li>Windows(不推荐)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>编辑器</h2>
+          <a href="http://www.sublimetext.com/3" target="_blank">http://www.sublimetext.com/3</a>
+        </section>
+
+        <section>
+          <h2>搜索引擎</h2>
+          <ul>
+            <li>Google</li>
+            <li>Bing</li>
+            <li>Baidu（不靠谱）</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>检查Ruby版本</h2>
+          <ul>
+            <li>打开命令行(bash/terminal/powershell)</li>
+            <li>输入ruby -v</li>
+          </ul>
+          <pre><code>
+quake@quake-nuc:~$ ruby -v
+ruby 2.2.2p95 (2015-04-13 revision 50295) [x86_64-linux]
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Hello World</h2>
+          <p>打开编辑器，输入如下内容，保存为ex1.rb</p>
+          <pre><code>
+puts "Hello World!"
+puts "Hello Again"
+puts "I like typing this."
+puts "This is fun."
+puts "Yay! Printing."
+puts "I'd much rather you 'not'."
+puts 'I "said" do not touch this.'            
+          </code></pre>
+          <p><small>puts = put string，输出字符串</small></p>
+          <p>打开命令行，输入ruby ex1.rb</p>
+        </section>
+
+        <section>
+          <h2>注释</h2>
+          <pre><code>
+# A comment, this is so you can read your program later.
+# Anything after the # is ignored by ruby.
+
+puts "I could have code like this." # and the comment after is ignored
+
+# You can also use a comment to "disable" or comment out a piece of code:
+# puts "This won't run."
+
+puts "This will run."
+
+# The # in that code is inside a string,
+# so it will be put into the string until the ending " character is hit. 
+puts "Hi # there."
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>数字和算术</h2>
+          <p>所有的编程语言都有和数学相关的内容，但是不用担心，大部分程序员的职业生涯只是同数字和算术打交道。</p>
+          <pre><code>
+puts "I will now count my chickens:"
+
+puts "Hens #{25 + 30 / 6}"
+puts "Roosters #{100 - 25 * 3 % 4}"
+
+puts "Now I will count the eggs:"
+
+puts 3 + 2 + 1 - 5 + 4 % 2 - 1 / 4 + 6
+
+puts "Is it true that 3 + 2 < 5 - 7?"
+
+puts 3 + 2 < 5 - 7
+
+puts "What is 3 + 2? #{3 + 2}"
+puts "What is 5 - 7? #{5 - 7}"
+
+puts "Oh, that's why it's false."
+
+puts "How about some more."
+
+puts "Is it greater? #{5 > -2}"
+puts "Is it greater or equal? #{5 >= -2}"
+puts "Is it less or equal? #{5 <= -2}"
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>变量和名字</h2>
+          <p>在程序员的世界里，变量（variable）只是为某个东西起个名字，通过变量名可以让代码看起来更像是英文，以免以后看不懂自己的代码。</p>
+          <code><pre>
+cars = 100
+space_in_a_car = 4.0
+drivers = 30
+passengers = 90
+cars_not_driven = cars - drivers
+cars_driven = drivers
+carpool_capacity = cars_driven * space_in_a_car
+average_passengers_per_car = passengers / cars_driven
+
+
+puts "There are #{cars} cars available."
+puts "There are only #{drivers} drivers available."
+puts "There will be #{cars_not_driven} empty cars today."
+puts "We can transport #{carpool_capacity} people today."
+puts "We have #{passengers} to carpool today."
+puts "We need to put about #{average_passengers_per_car} in each car."
+          </pre></code>
+        </section>
+
+        <section>
+          <h2>更多的变量和打印</h2>
+          <p>有2件事情对于程序员来说是最难的，第一是给变量起名，第二是让缓存失效。</p>
+          <code><pre>
+my_name = 'Zed A. Shaw'
+my_age = 35 # not a lie in 2009
+my_height = 74 # inches
+my_weight = 180 # lbs
+my_eyes = 'Blue'
+my_teeth = 'White'
+my_hair = 'Brown'
+
+puts "Let's talk about #{my_name}."
+puts "He's #{my_height} inches tall."
+puts "He's #{my_weight} pounds heavy."
+puts "Actually that's not too heavy."
+puts "He's got #{my_eyes} eyes and #{my_hair} hair."
+puts "His teeth are usually #{my_teeth} depending on the coffee."
+
+# this line is tricky, try to get it exactly right
+puts "If I add #{my_age}, #{my_height}, and #{my_weight} I get #{my_age + my_height + my_weight}."
+          </pre></code>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

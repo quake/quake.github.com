@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>learn ruby the hard way (01)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>learn ruby the hard way (06~14)</h1>
+          <p>
+            <small><a href="http://learnrubythehardway.org/book/ex6.html" target="_blank">http://learnrubythehardway.org/book/ex6.html</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>复习</h2>
+          <ul>
+            <li class="fragment">字符串：由"(双引号)或者 '(单引号) 包围的文本。</li>
+            <li class="fragment">变量：给某个东西起个名字放在＝（等号）左边，右边是它的值。</li>
+            <li class="fragment">字符串中可以用#{}插入变量</li>
+          </ul>
+          <pre class="fragment"><code>
+types_of_people = 10
+x = "There are #{types_of_people} types of people."
+binary = "binary"
+do_not = "don't"
+y = "Those who know #{binary} and those who #{do_not}."
+
+puts x
+puts y
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>字符串操作</h2>
+          <pre><code>
+puts "抄课文10次" * 10
+
+w = "This is the left side of..."
+e = "a string with a right side."
+puts w + e
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>格式化</h2>
+          <p>除了#{}，我们还可以使用%{}在字符串中插入变量，然后使用%来进行格式化</p>
+          <pre><code>
+formatter = "%{first} %{second} %{third} %{fourth}"
+
+puts formatter % {first: 1, second: 2, third: 3, fourth: 4}
+puts formatter % {first: "one", second: "two", third: "three", fourth: "four"}
+puts formatter % {first: true, second: false, third: true, fourth: false}
+puts formatter % {first: formatter, second: formatter, third: formatter, fourth: formatter}
+
+puts formatter % {
+  first: "I had this thing.",
+  second: "That you could type up right.",
+  third: "But it didn't sing.",
+  fourth: "So I said goodnight."
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>转义符</h2>
+          <pre><code>
+days = "Mon Tue Wed Thu Fri Sat Sun"
+months = "Jan\nFeb\nMar\nApr\nMay\nJun\nJul\nAug"
+
+puts "Here are the days: #{days}"
+puts "Here are the months: #{months}"
+
+puts """
+There's something going on here.
+With the three double-quotes.
+We'll be able to type as much as we like.
+Even 4 lines if we want, or 5, or 6.
+"""
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>转义符 2</h2>
+          <p>\ (反斜杆) 后紧跟一个字符，用来代表输出一些不容易表示的字符，比如\n代表新起一行（new line character)，在引号包含的字符串里面可以用\+引号输出一个引号：</p>
+          <pre><code>
+"I am 6'2\" tall."  # escape double-quote inside string
+'I am 6\'2" tall.'  # escape single-quote inside string
+          </code></pre>
+          <p>还有\t（tab）, \\ （输出\）等等</p>
+          <pre><code>
+tabby_cat = "\tI'm tabbed in."
+persian_cat = "I'm split\non a line."
+backslash_cat = "I'm \\ a \\ cat."
+
+fat_cat = """
+I'll do a list:
+\t* Cat food
+\t* Fishies
+\t* Catnip\n\t* Grass
+"""
+
+puts tabby_cat
+puts persian_cat
+puts backslash_cat
+puts fat_cat
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>输入</h2>
+          <p>程序员所有的工作都是在解决输入输出问题，之前我们学了很多输出（puts/print），接下来看看输入</p>
+          <pre><code>
+print "How old are you? "
+age = gets.chomp
+print "How tall are you? "
+height = gets.chomp
+print "How much do you weigh? "
+weight = gets.chomp
+
+puts "So, you're #{age} old, #{height} tall and #{weight} heavy."
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>输入 2</h2>
+          <pre><code>
+print "Give me a number: "
+number = gets.chomp.to_i
+
+bigger = number * 100
+puts "A bigger number is #{bigger}."
+
+print "Give me another number: "
+another = gets.chomp
+number = another.to_i
+
+smaller = number / 100
+puts "A smaller number is #{smaller}."
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>命令行参数</h2>
+          <p>除了通过gets来获取输入以外，我们还可以在命令行里面执行ruby ex13.rb这样的命令时，在后面加上更多的字符串作为输入，这称为ARGV（argument variable）</p>
+          <pre><code>
+first, second, third = ARGV
+
+puts "Your first variable is: #{first}"
+puts "Your second variable is: #{second}"
+puts "Your third variable is: #{third}"
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>命令行参数和gets</h2>
+          <pre><code>
+user_name = ARGV.first
+prompt = '> '
+
+puts "Hi #{user_name}."
+puts "I'd like to ask you a few questions."
+puts "Do you like me #{user_name}? ", prompt
+likes = $stdin.gets.chomp
+
+puts "Where do you live #{user_name}? ", prompt
+lives = $stdin.gets.chomp
+
+puts "What kind of computer do you have? ", prompt
+computer = $stdin.gets.chomp
+
+puts """
+Alright, so you said #{likes} about liking me.
+You live in #{lives}.  Not sure where that is.
+And you have a #{computer} computer.  Nice.
+"""
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="02.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

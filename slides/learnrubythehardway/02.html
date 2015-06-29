@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>learn ruby the hard way (02)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>learn ruby the hard way (15~26)</h1>
+          <p>
+            <small><a href="http://learnrubythehardway.org/book/ex15.html" target="_blank">http://learnrubythehardway.org/book/ex15.html</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>复习</h2>
+          <ul>
+            <li class="fragment">字符串："抄课文10次" * 10 / 格式化 %{} / 转义符 \n </li>
+            <li class="fragment">输入：gets / ARGV</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>读文件</h2>
+          <pre><code>
+filename = ARGV.first
+
+txt = open(filename)
+
+puts "Here's your file #{filename}:"
+print txt.read
+
+print "Type the filename again: "
+file_again = $stdin.gets.chomp
+
+txt_again = open(file_again)
+
+print txt_again.read
+          </code></pre>
+          <p>命令行执行： ruby ex15.rb ex15_sample.txt</p>
+          <p>从命令行参数获得要读取的文件名，避免hard code（程序员最讨厌的事情之一）</p>
+        </section>
+
+        <section>
+          <h2>读写文件</h2>
+          <p>一段实现简单的文件编辑器代码</p>
+          <pre><code>
+filename = ARGV.first
+
+puts "We're going to erase #{filename}"
+puts "If you don't want that, hit CTRL-C (^C)."
+puts "If you do want that, hit RETURN."
+
+$stdin.gets
+
+puts "Opening the file..."
+target = open(filename, 'w')
+
+puts "Truncating the file.  Goodbye!"
+target.truncate(0)
+
+puts "Now I'm going to ask you for three lines."
+
+print "line 1: "
+line1 = $stdin.gets.chomp
+print "line 2: "
+line2 = $stdin.gets.chomp
+print "line 3: "
+line3 = $stdin.gets.chomp
+
+puts "I'm going to write these to the file."
+
+target.write(line1)
+target.write("\n")
+target.write(line2)
+target.write("\n")
+target.write(line3)
+target.write("\n")
+
+puts "And finally, we close it."
+target.close
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>更多的文件操作</h2>
+          <p>一段实现拷贝文件的代码</p>
+          <pre><code>
+from_file, to_file = ARGV
+
+puts "Copying from #{from_file} to #{to_file}"
+
+# we could do these two on one line, how?
+in_file = open(from_file)
+indata = in_file.read
+
+puts "The input file is #{indata.length} bytes long"
+
+puts "Does the output file exist? #{File.exist?(to_file)}"
+puts "Ready, hit RETURN to continue, CTRL-C to abort."
+$stdin.gets
+
+out_file = open(to_file, 'w')
+out_file.write(indata)
+
+puts "Alright, all done."
+
+out_file.close
+in_file.close
+          </code></pre>
+          <pre><code>
+echo "This is a test file." > test.txt
+cat test.txt
+ruby ex17.rb test.txt new_file.txt</code></pre>
+        </section>
+
+        <section>
+          <h2>Functions 函数</h2>
+          <ul>
+            <li>将一段代码通过命名和变量组织起来</li>
+            <li>接受参数（arguments），类似代码脚本接受ARGV一样。</li>
+            <li>通过上述2种方式实现你自己的mini scripts或者说tiny commands</li>
+          </ul>
+          <pre><code>
+# this one is like your scripts with ARGV
+def print_two(*args)
+  arg1, arg2 = args
+  puts "arg1: #{arg1}, arg2: #{arg2}"
+end
+
+# ok, that *args is actually pointless, we can just do this
+def print_two_again(arg1, arg2)
+  puts "arg1: #{arg1}, arg2: #{arg2}"
+end
+
+# this just takes one argument
+def print_one(arg1)
+  puts "arg1: #{arg1}"
+end
+
+# this one takes no arguments
+def print_none()
+  puts "I got nothin'."
+end
+
+
+print_two("Zed","Shaw")
+print_two_again("Zed","Shaw")
+print_one("First!")
+print_none()
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>函数和变量</h2>
+          <pre><code>
+def cheese_and_crackers(cheese_count, boxes_of_crackers)
+  puts "You have #{cheese_count} cheeses!"
+  puts "You have #{boxes_of_crackers} boxes of crackers!"
+  puts "Man that's enough for a party!"
+  puts "Get a blanket.\n"
+end
+
+
+puts "We can just give the function numbers directly:"
+cheese_and_crackers(20, 30)
+
+
+puts "OR, we can use variables from our script:"
+amount_of_cheese = 10
+amount_of_crackers = 50
+
+cheese_and_crackers(amount_of_cheese, amount_of_crackers)
+
+
+puts "We can even do math inside too:"
+cheese_and_crackers(10 + 20, 5 + 6)
+
+
+puts "And we can combine the two, variables and math:"
+cheese_and_crackers(amount_of_cheese + 100, amount_of_crackers + 1000)
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>函数和文件</h2>
+          <pre><code>
+input_file = ARGV.first
+
+def print_all(f)
+  puts f.read
+end
+
+def rewind(f)
+  f.seek(0)
+end
+
+def print_a_line(line_count, f)
+  puts "#{line_count}, #{f.gets.chomp}"
+end
+
+current_file = open(input_file)
+
+puts "First let's print the whole file:\n"
+
+print_all(current_file)
+
+puts "Now let's rewind, kind of like a tape."
+
+rewind(current_file)
+
+puts "Let's print three lines:"
+
+current_line = 1
+print_a_line(current_line, current_file)
+
+current_line = current_line + 1
+print_a_line(current_line, current_file)
+
+current_line = current_line + 1
+print_a_line(current_line, current_file)
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>函数返回值</h2>
+          <p>前面我们讲过用 ＝ 设定变量的用法，变量也支持函数的返回值（return）</p>
+          <pre><code>
+def add(a, b)
+  puts "ADDING #{a} + #{b}"
+  return a + b
+end
+
+def subtract(a, b)
+  puts "SUBTRACTING #{a} - #{b}"
+  return a - b
+end
+
+def multiply(a, b)
+  puts "MULTIPLYING #{a} * #{b}"
+  return a * b
+end
+
+def divide(a, b)
+  puts "DIVIDING #{a} / #{b}"
+  return a / b
+end
+
+
+puts "Let's do some math with just functions!"
+
+age = add(30, 5)
+height = subtract(78, 4)
+weight = multiply(90, 2)
+iq = divide(100, 2)
+
+puts "Age: #{age}, Height: #{height}, Weight: #{weight}, IQ: #{iq}"
+
+
+# A puzzle for the extra credit, type it in anyway.
+puts "Here is a puzzle."
+
+what = add(age, subtract(height, multiply(weight, divide(iq, 2))))
+
+puts "That becomes: #{what}. Can you do it by hand?"
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>复习</h2>
+          <p>读懂每一行代码</p>
+          <pre><code>
+puts "Let's practice everything."
+puts 'You\'d need to know \'bout escapes with \\ that do \n newlines and \t tabs.'
+
+poem = &lt;&lt;END
+\tThe lovely world
+with logic so firmly planted
+cannot discern \n the needs of love
+nor comprehend passion from intuition
+and requires an explanation
+\n\t\twhere there is none.
+END
+
+puts "--------------"
+puts poem
+puts "--------------"
+
+
+five = 10 - 2 + 3 - 6
+puts "This should be five: #{five}"
+
+def secret_formula(started)
+  jelly_beans = started * 500
+  jars = jelly_beans / 1000
+  crates = jars / 100
+  return jelly_beans, jars, crates
+end
+
+
+start_point = 10000
+beans, jars, crates = secret_formula(start_point)
+
+puts "With a starting point of: #{start_point}"
+puts "We'd have #{beans} beans, #{jars} jars, and #{crates} crates."
+
+start_point = start_point / 10
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>模块（module）和irb</h2>
+          <pre><code>
+module Ex25
+
+  # This function will break up words for us.
+  def Ex25.break_words(stuff)
+    words = stuff.split(' ')
+    return words
+  end
+
+  # Sorts the words.
+  def Ex25.sort_words(words)
+    return words.sort
+  end
+
+  # Prints the first word after shifting it off.
+  def Ex25.print_first_word(words)
+    word = words.shift
+    puts word
+  end
+
+  # Prints the last word after popping it off.
+  def Ex25.print_last_word(words)
+    word = words.pop
+    puts word
+  end
+
+  # Takes in a full sentence and returns the sorted words.
+  def Ex25.sort_sentence(sentence)
+    words = Ex25.break_words(sentence)
+    return Ex25.sort_words(words)
+  end
+
+  # Prints the first and last words of the sentence.
+  def Ex25.print_first_and_last(sentence)
+    words = Ex25.break_words(sentence)
+    Ex25.print_first_word(words)
+    Ex25.print_last_word(words)
+  end
+
+  # Sorts the words then prints the first and last one.
+  def Ex25.print_first_and_last_sorted(sentence)
+    words = Ex25.sort_sentence(sentence)
+    Ex25.print_first_word(words)
+    Ex25.print_last_word(words)
+  end
+
+end
+
+          </code></pre>
+          <pre><code>
+irb
+require "./ex25.rb"
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>测试</h2>
+          <ul>
+            <li>接手其他程序员写的代码或者修复错误代码是程序员最不愿意做的事情之一</li>
+            <li>拷贝这个代码，保存为ex26.rb，执行ruby ex26.rb让它正常运行</li>
+            <li><a href="http://learnrubythehardway.org/book/exercise26.txt">http://learnrubythehardway.org/book/exercise26.txt</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="03.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

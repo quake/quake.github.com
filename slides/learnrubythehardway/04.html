@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>learn ruby the hard way (04)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>learn ruby the hard way (37~42)</h1>
+          <p>
+            <small><a href="http://learnrubythehardway.org/book/ex37.html" target="_blank">http://learnrubythehardway.org/book/ex37.html</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>回顾</h2>
+          <p><a href="http://learnrubythehardway.org/book/ex37.html">http://learnrubythehardway.org/book/ex37.html</a></p>
+          <ul>
+            <li>关键字</li>
+            <li>数据类型</li>
+            <li>转义符</li>
+            <li>操作符</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>更多的数组操作</h2>
+          <pre><code>
+ten_things = "Apples Oranges Crows Telephone Light Sugar"
+
+puts "Wait there are not 10 things in that list. Let's fix that."
+
+stuff = ten_things.split(' ')
+more_stuff = ["Day", "Night", "Song", "Frisbee", "Corn", "Banana", "Girl", "Boy"]
+
+# using math to make sure there's 10 items
+
+while stuff.length != 10
+  next_one = more_stuff.pop
+  puts "Adding: #{next_one}"
+  stuff.push(next_one)
+  puts "There are #{stuff.length} items now."
+end
+
+puts "There we go: #{stuff}"
+
+puts "Let's do some things with stuff."
+
+puts stuff[1]
+puts stuff[-1] # whoa! fancy
+puts stuff.pop()
+puts stuff.join(' ')
+puts stuff[3..5].join("#")
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>哈希表</h2>
+          <p>Hash（哈希表）是ruby中另外一个常用的容器，其他编程语言也称这种容器为字典（Dictionary）</p>
+          <pre><code>
+stuff = {'name' => 'Zed', 'age' => 39, 'height' => 6 * 12 + 2}
+stuff['name']
+stuff['age']
+stuff['city'] = "San Francisco"
+stuff['city']
+stuff
+stuff[1] = "Wow"
+stuff[2] = "Neato"
+stuff.delete('city')
+          </code></pre>
+          <pre><code>
+# create a mapping of state to abbreviation
+states = {
+  'Oregon' => 'OR',
+  'Florida' => 'FL',
+  'California' => 'CA',
+  'New York' => 'NY',
+  'Michigan' => 'MI'
+}
+
+# create a basic set of states and some cities in them
+cities = {
+  'CA' => 'San Francisco',
+  'MI' => 'Detroit',
+  'FL' => 'Jacksonville'
+}
+
+# add some more cities
+cities['NY'] = 'New York'
+cities['OR'] = 'Portland'
+
+# puts out some cities
+puts '-' * 10
+puts "NY State has: #{cities['NY']}"
+puts "OR State has: #{cities['OR']}"
+
+# puts some states
+puts '-' * 10
+puts "Michigan's abbreviation is: #{states['Michigan']}"
+puts "Florida's abbreviation is: #{states['Florida']}"
+
+# do it by using the state then cities dict
+puts '-' * 10
+puts "Michigan has: #{cities[states['Michigan']]}"
+puts "Florida has: #{cities[states['Florida']]}"
+
+# puts every state abbreviation
+puts '-' * 10
+states.each do |state, abbrev|
+  puts "#{state} is abbreviated #{abbrev}"
+end
+
+# puts every city in state
+puts '-' * 10
+cities.each do |abbrev, city|
+  puts "#{abbrev} has the city #{city}"
+end
+
+# now do both at the same time
+puts '-' * 10
+states.each do |state, abbrev|
+  city = cities[abbrev]
+  puts "#{state} is abbreviated #{abbrev} and has city #{city}"
+end
+
+puts '-' * 10
+# by default ruby says "nil" when something isn't in there
+state = states['Texas']
+
+if !state
+  puts "Sorry, no Texas."
+end
+
+# default values using ||= with the nil result
+city = cities['TX']
+city ||= 'Does Not Exist'
+puts "The city for the state 'TX' is: #{city}"
+          </code></pre>
+
+        </section>
+
+        <section>
+          <h2>面向对象编程（Object-Oriented Programming）</h2>
+          <pre><code>
+mystuff = {'apple' => "I AM APPLES!"}
+puts mystuff['apple']
+          </code></pre>
+
+          <pre><code>
+# this goes in mystuff.rb
+module MyStuff
+    def MyStuff.apple()
+        puts "I AM APPLES!"
+    end
+
+    # this is just a variable
+    TANGERINE = "Living reflection of a dream"
+end
+
+MyStuff.apple()
+puts MyStuff::TANGERINE
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Class 和 Object</h2>
+          <p>Class可以理解成实例化（initialize）的Module，实例化后的Class称为Object</p>
+          <pre><code>
+class MyStuff
+    def initialize()
+        @tangerine = "And now a thousand years between"
+    end
+
+    attr_reader :tangerine
+
+    def apple()
+        puts "I AM CLASSY APPLES!"
+    end
+end
+
+thing = MyStuff.new()
+thing.apple()
+puts thing.tangerine
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>更多关于Object 和 Class</h2>
+          <pre><code>
+What is the difference between a Fish and a Salmon?
+
+What is the difference between Mary and a Salmon?
+          </code></pre>
+          <pre><code>
+## Animal is-a object look at the extra credit
+class Animal
+end
+
+## ??
+class Dog &lt; Animal
+
+  def initialize(name)
+    ## ??
+    @name = name
+  end
+end
+
+## ??
+class Cat &lt; Animal
+
+  def initialize(name)
+    ## ??
+    @name = name
+  end
+end
+
+## ??
+class Person
+
+  def initialize(name)
+    ## ??
+    @name = name
+
+    ## Person has-a pet of some kind
+    @pet = nil
+  end
+
+  attr_accessor :pet
+end
+
+## ??
+class Employee &lt; Person
+
+  def initialize(name, salary)
+    ## ?? hmm what is this strange magic?
+    super(name)
+    ## ??
+    @salary = salary
+  end
+
+end
+
+## ??
+class Fish
+end
+
+## ??
+class Salmon &lt; Fish
+end
+
+## ??
+class Halibut &lt; Fish
+end
+
+
+## rover is-a Dog
+rover = Dog.new("Rover")
+
+## ??
+satan = Cat.new("Satan")
+
+## ??
+mary = Person.new("Mary")
+
+## ??
+mary.pet = satan
+
+## ??
+frank = Employee.new("Frank", 120000)
+
+## ??
+frank.pet = rover
+
+## ??
+flipper = Fish.new()
+
+## ??
+crouse = Salmon.new()
+
+## ??
+harry = Halibut.new()
+          </code></pre>
+        </section>
+
+        <section>
+          <h2></h2>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="05.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>learn ruby the hard way (05)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>learn ruby the hard way (43)</h1>
+          <p>
+            <small><a href="http://learnrubythehardway.org/book/ex43.html" target="_blank">http://learnrubythehardway.org/book/ex43.html</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>面向对象的分析和设计</h2>
+          <ul>
+            <li>用写或者画的方式，对问题进行描述</li>
+            <li>从中找出关键概念，对它进行研究</li>
+            <li>对关键概念编写类层次结构和对象映射</li>
+            <li>实现类的功能和测试</li>
+            <li>重复整个流程，完善代码</li>
+          </ul>
+          <p>整个过程是从上至下的(top down) ，是从一个抽象的想法出发, 慢慢地通过改善逐渐成为能够编写代码的实例。</p>
+        </section>
+
+        <section>
+          <h2>实现一个文字游戏</h2>
+          <p>一个太空冒险游戏：Gothons from Planet Percal #25</p>
+        </section>
+
+        <section>
+          <h2>对问题进行描述</h2>
+          <p>外星人（Gothons）入侵了一艘太空船, 我们的英雄为了能够成功的进入逃生舱驶向地球, 不得不穿过迷宫般的房间. </p>
+          <p>这个游戏非常像Zork或是其他冒险类游戏, 包括文字输出，玩家输入，以及有趣的死亡方式. </p>
+          <p>这个游戏将包含运行所有房间或是场景的引擎. 当玩家进入一个房间的时候, 都会出现相应的描述, 并且告诉引擎当出了这个地图后, 哪个房间将被运行.</p>
+        </section>
+
+        <section>
+          <h2>更多的场景描述</h2>
+          <ul>
+            <li>Death: 当玩家死亡时会被触发, 应具有一定的娱乐性</li>
+            <li>Central Corridor: 游戏的开始点, 有一个Gothon已经站在了那里, 你需要通过讲笑话击败他</li>
+            <li>Laser Weapon Armory: 英雄能在这里获取中子炸弹, 用于在进入逃生舱之前引爆. 它有一个输入盘, 需要猜测数字</li>
+            <li>Bridge: 另一个有Gothon的战斗场景, 英雄将在那里放置炸弹</li>
+            <li>Escape Pod: 英雄必须选择正确的逃生舱才能逃离</li>
+          </ul>
+          <p>我们可能还需要画一下场景地图</p>
+        </section>
+
+        <section>
+          <h2>找出关键概念</h2>
+          <p>做一份名词单， 并开始问自己: "这个名词是不是和别的名词意思相同? 这意味着它们有一个相同的父类, 那么这个父类叫什么呢?" 不断地重复提问回答地过程, 直到建立一个类关系图</p>
+          <p>Alien, Player, Ship, Maze, Room, Scene, Gothon, Escape Pod, Planet, Map, Engine, Death, Central Corridor, Laser Weapon Armory, The Bridge</p>
+        </section>
+
+        <section>
+          <h2>类层次结构</h2>
+          <pre>
+* Map
+* Engine
+* Scene
+  * Death
+  * Central Corridor
+  * Laser Weapon Armory
+  * The Bridge
+  * Escape Pod
+          </pre>
+        </section>
+
+        <section>
+          <h2>给类添加行为</h2>
+          <p>选择合适的动词, 用来描述类在不同情况下需要怎样的行为. 通过问题描述知道: 需要运行游戏引擎, 从地图中进入到下一个场景, 然后打开并且进入这个场景</p>
+          <pre>
+* Map
+  - next_scene
+  - opening_scene
+* Engine
+  - play
+* Scene
+  - enter
+  * Death
+  * Central Corridor
+  * Laser Weapon Armory
+  * The Bridge
+  * Escape Pod
+          </pre>
+        </section>
+
+        <section>
+          <h2>定义抽象方法</h2>
+<pre><code>
+class Scene
+  def enter()
+  end
+end
+
+
+class Engine
+  def initialize(scene_map)
+  end
+
+  def play()
+  end
+end
+
+class Death &lt; Scene
+  def enter()
+  end
+end
+
+class CentralCorridor &lt; Scene
+  def enter()
+  end
+end
+
+class LaserWeaponArmory &lt; Scene
+  def enter()
+  end
+end
+
+class TheBridge &lt; Scene
+  def enter()
+  end
+end
+
+class EscapePod &lt; Scene
+  def enter()
+  end
+end
+
+
+class Map
+  def initialize(start_scene)
+  end
+
+  def next_scene(scene_name)
+  end
+
+  def opening_scene()
+  end
+end
+
+a_map = Map.new('central_corridor')
+a_game = Engine.new(a_map)
+a_game.play()
+</code></pre>
+        </section>
+
+        <section>
+          <h2>实现引擎</h2>
+<pre><code>
+class Engine
+  def initialize(scene_map)
+    @scene_map = scene_map
+  end
+
+  def play()
+    current_scene = @scene_map.opening_scene()
+    last_scene = @scene_map.next_scene('finished')
+
+    while current_scene != last_scene
+      next_scene_name = current_scene.enter()
+      current_scene = @scene_map.next_scene(next_scene_name)
+    end
+
+    # be sure to print out the last scene
+    current_scene.enter()
+  end
+end
+</code></pre>
+        </section>
+
+        <section>
+          <h2>实现场景</h2>
+<pre><code>
+class Scene
+  def enter()
+    puts "This scene is not yet configured. Subclass it and implement enter()."
+    exit(1)
+  end
+end
+
+class Death < Scene
+
+  @@quips = [
+    "You died.  You kinda suck at this.",
+     "Your mom would be proud...if she were smarter.",
+     "Such a luser.",
+     "I have a small puppy that's better at this."
+  ]
+
+  def enter()
+    puts @@quips[rand(0..(@@quips.length - 1))]
+    exit(1)
+  end
+end
+</code></pre>
+        </section>
+
+
+        <section>
+          <h2>实现地图</h2>
+<pre><code>
+class Map
+  @@scenes = {
+    'central_corridor' => CentralCorridor.new(),
+    'laser_weapon_armory' => LaserWeaponArmory.new(),
+    'the_bridge' => TheBridge.new(),
+    'escape_pod' => EscapePod.new(),
+    'death' => Death.new(),
+    'finished' => Finished.new(),
+  }
+
+
+  def initialize(start_scene)
+    @start_scene = start_scene
+  end
+
+
+  def next_scene(scene_name)
+    val = @@scenes[scene_name]
+    return val
+  end
+
+  def opening_scene()
+    return next_scene(@start_scene)
+  end
+end
+</code></pre>
+        </section>
+
+        <section>
+          <h2>开始游戏</h2>
+          <pre><code>
+a_map = Map.new('central_corridor')
+a_game = Engine.new(a_map)
+a_game.play()
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>测试，修复bug，完善代码</h2>
+          <p>第一个场景，讲完笑话就结束了，没有进入第二个场景</p>
+          <p>Laser Weapon Armory可以猜测11次，不是设想的10次</p>
+          <p>给猜3位代码添加一个特定的作弊码（比如888）</p>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="06.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

@@ -82,7 +82,7 @@ class CentralCorridor < Scene
       puts "The Gothon stops, tries not to laugh, then busts out laughing and can't move."
       puts "While he's laughing you run up and shoot him square in the head"
       puts "putting him down, then jump through the Weapon Armory door."
-      return 'finished'
+      return 'laser_weapon_armory'
 
     else
       puts "DOES NOT COMPUTE!"

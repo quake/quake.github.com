@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Ruby on Rails 教程 (00)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>Ruby on Rails 教程 (00)</h1>
+        </section>
+
+        <section>
+          <h2>安装Ruby和Rails环境</h2>
+          <ul>
+            <li>推荐MacOS 或者 Linux</li>
+            <li><a href="https://ruby-china.org/wiki/install_ruby_guide">https://ruby-china.org/wiki/install_ruby_guide</a></li>
+            <li>不推荐Windows</li>
+            <li><a href="http://railsinstaller.org/">railsinstaller</a> or <a href="http://railsftw.bryanbibat.net/">railsftw</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>开发工具</h2>
+          <ul>
+            <li>Sublimetext: <a href="http://www.sublimetext.com/3">http://www.sublimetext.com/3</a></li>
+            <li>Git: <a href="http://git-scm.com/book/zh/v2">http://git-scm.com/book/zh/v2</a></li>
+            <li>VPN: <a href="http://igetvpn.com">云梯</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>参考资料</h2>
+          <ul>
+            <li><a href="http://guides.rubyonrails.org/">Ruby on Rails Guides </a>，<a href="http://guides.ruby-china.org/">中文版</a></li>
+            <li><a href="http://www.railstutorial.org/">Rails Tutorial</a>， <a href="http://railstutorial-china.org/">中文版</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>创建workspace</h2>
+          <pre><code>
+$ cd
+$ mkdir workspace
+$ cd workspace
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>新建一个项目</h2>
+          <pre><code>
+$ rails new hello_app
+$ cd hello_app
+$ ls -l
+          </code></pre>
+          <p>了解项目目录结构</p>
+        </section>
+
+        <section>
+          <h2>Gemfile和bundle</h2>
+          <pre><code>
+$ bundle install
+          </code></pre>
+          <a href="http://ruby.taobao.org/">http://ruby.taobao.org/</a>
+        </section>
+
+        <section>
+          <h2>启动项目</h2>
+          <pre><code>
+$ rails server
+          </code></pre>
+          <a href="http://localhost:3000">http://localhost:3000</a>
+        </section>
+
+        <section>
+          <h2>MVC</h2>
+          <p>models / views / controllers</p>
+          <img src="images/mvc.png"/>
+        </section>
+
+        <section>
+          <h2>Hello World</h2>
+          <pre><code>
+# app/controllers/application_controller.rb
+
+def hello
+  render text: "hello, world!"
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Routes</h2>
+          <pre><code>
+# config/routes.rb
+# root 'welcome#index'
+
+root 'application#hello'
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Git</h2>
+<p>版本控制是软件开发中最基本的事情，第一次使用，需要先配置一下</p>
+<pre><code>
+$ git config --global user.name "Your Name"
+$ git config --global user.email your.email@example.com
+$ git config --global push.default matching
+$ git config --global alias.co checkout
+</code></pre>
+        </section>
+
+        <section>
+          <h2>初始化项目仓库</h2>
+<pre><code>
+$ git init
+$ git add -A
+$ git status
+$ git commit -m "Initialize repository"
+$ git log
+</code></pre>
+        </section>
+
+        <section>
+          <h2>版本控制的好处</h2>
+<pre><code>
+$ rm -rf app/controllers/
+$ ls app/controllers/
+$ git status
+$ git checkout -f
+$ git status
+$ ls app/controllers/
+</code></pre>
+        </section>
+
+        <section>
+          <h2>将代码保存在云端</h2>
+          Github和Bitbucket
+<pre><code>
+$ git remote add origin git@bitbucket.org:quake/hello_app.git
+$ git push -u origin --all
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Git的日常操作</h2>
+          <p>branch / commit / merge / push</p>
+<pre><code>
+$ git checkout -b modify-README
+$ git branch
+$ git mv README.rdoc README.md
+</code></pre>
+
+<pre><code>
+# Ruby on Rails Tutorial: "hello, world!"
+This is the first application for the
+[*Ruby on Rails Tutorial*](http://www.railstutorial.org/)
+by [Michael Hartl](http://www.michaelhartl.com/).
+</code></pre>
+        </section>
+
+        <section>
+          <h2>Git的日常操作</h2>
+<pre><code>
+$ git status
+$ git commit -a -m "Improve the README file"
+$ git checkout master
+$ git merge modify-README
+$ git branch -d modify-README
+$ git push
+</code></pre>
+        </section>
+
+        <section>
+          <h2>课后练习</h2>
+          <ul>
+            <li>将Hello world改成：你好世界</li>
+            <li>将路由从hello改成goodbye</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="01.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Ruby on Rails 教程 (02)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>Ruby on Rails 教程 (02)</h1>
+        </section>
+
+        <section>
+          <h2>专业级演示应用</h2>
+          <p>最终完成的应用包含用户、微博功能,以及完整的登录和用户身份认证系统</p>
+          <ul>
+            <li class="fragment">创建静态页面</li>
+            <li class="fragment">自动化测试</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>创建演示应用</h2>
+<pre><code>
+$ cd ~/workspace
+$ rails new sample_app
+$ cd sample_app/
+$ git ...
+</code></pre>
+        </section>
+
+        <section>
+          <h2>静态页面</h2>
+<pre><code>
+$ rails generate controller StaticPages home help
+$ rails s
+</code></pre>
+<p>
+  <a href="http://localhost:3000/static_pages/home" target="_blank">http://localhost:3000/static_pages/home</a><br/>
+  <a href="http://localhost:3000/static_pages/about" target="_blank">http://localhost:3000/static_pages/about</a>
+</p>
+        </section>
+
+        <section>
+          <h2>修改首页HTML</h2>
+<pre><code>
+&lt;h1&gt;Sample App&lt;/h1&gt;
+&lt;p&gt;
+This is the home page for the
+&lt;a href="http://www.railstutorial.org/"&gt;Ruby on Rails Tutorial&lt;/a&gt;
+sample application.
+&lt;/p&gt;
+</code></pre>
+        </section>
+
+        <section>
+          <h2>修改帮助HTML</h2>
+          <pre><code>
+&lt;h1&gt;Help&lt;/h1&gt;
+&lt;p&gt;
+Get help on the Ruby on Rails Tutorial at the
+&lt;a href="http://www.railstutorial.org/#help"&gt;Rails Tutorial help section&lt;/a&gt;.
+To get help on this sample app, see the
+&lt;a href="http://www.railstutorial.org/book"&gt;&lt;em&gt;Ruby on Rails Tutorial&lt;/em&gt;
+book&lt;/a&gt;.
+&lt;/p&gt;a
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>开始测试</h2>
+<ul>
+  <li>关于TDD（Test-
+Driven Development）</li>
+  <li class="fragment"><a href="http://david.heinemeierhansson.com/2014/tdd-is-dead-long-live-testing.html" target="_blank">TDD is dead. Long live testing</a></li>
+</ul>
+        </section>
+
+        <section>
+          <h2>美化测试报告的GEM</h2>
+<pre><code>
+# Gemfile
+group :test do
+  gem 'minitest-reporters', '1.0.5'
+  gem 'mini_backtrace', '0.1.3'
+  gem 'guard-minitest', '2.3.1'
+end
+
+$ bundle install
+
+# test/test_helper.rb
+require "minitest/reporters"
+Minitest::Reporters.use!
+</code></pre>
+        </section>
+
+        <section>
+          <h2>第一个测试</h2>
+<pre><code>
+# test/controllers/static_pages_controller_test.rb
+$ rake test
+</code></pre>
+        </section>
+
+        <section>
+          <h2>变红</h2>
+          <pre><code>
+# test/controllers/static_pages_controller_test.rb
+test "should get about" do
+  get :about
+  assert_response :success
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>变绿</h2>
+<ul>
+  <li class="fragment">config/routes.rb</li>
+  <li class="fragment">app/controllers/static_pages_controller.rb</li>
+  <li class="fragment">app/views/static_pages/about.html.erb</li>
+</ul>
+        </section>
+
+        <section>
+          <h2>布局文件</h2>
+<pre><code>
+$ mv app/views/layouts/application.html.erb layout_file
+</code></pre>
+        </section>
+
+        <section>
+          <h2>测试标题</h2>
+<pre><code>
+assert_select "title", "Home | Ruby on Rails Tutorial Sample App"
+</code></pre>
+        </section>
+
+        <section>
+          <h2>有点动态内容的页面</h2>
+          <pre><code>
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Home | Ruby on Rails Tutorial Sample App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Sample App&lt;/h1&gt;
+  &lt;p&gt;
+    This is the home page for the
+    &lt;a href="http://www.railstutorial.org/"&gt;Ruby on Rails Tutorial&lt;/a&gt;
+    sample application.
+  &lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>DRY</h2>
+          <ul>
+            <li>DRY (Don’t Repeat Yourself)</li>
+            <li>布局和嵌入式 Ruby(重构)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>ERB</h2>
+          <pre><code>
+&lt;% provide(:title, "Home") %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;&lt;%= yield(:title) %&gt; | Ruby on Rails Tutorial Sample App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Sample App&lt;/h1&gt;
+  &lt;p&gt;
+    This is the home page for the
+    &lt;a href="http://www.railstutorial.org/"&gt;Ruby on Rails Tutorial&lt;/a&gt;
+    sample application.
+    &lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>布局文件</h2>
+<pre><code>
+$ mv layout_file app/views/layouts/application.html.erb
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;&lt;%= yield(:title) %&gt; | Ruby on Rails Tutorial Sample App&lt;/title&gt;
+  &lt;%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' =&gt; true %&gt;
+  &lt;%= javascript_include_tag 'application', 'data-turbolinks-track' =&gt; true %&gt;
+  &lt;%= csrf_meta_tags %&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;%= yield %&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+        </section>
+
+        <section>
+          <h2>课后练习</h2>
+          <ul>
+            <li>去除测试代码里面的重复代码</li>
+            <li>添加一个“联系”页面和测试代码</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="03.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

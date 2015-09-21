@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Ruby on Rails 教程 (03)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>Ruby on Rails 教程 (03)</h1>
+        </section>
+
+        <section>
+          <h2>Rails背后的Ruby</h2>
+          <ul>
+            <li class="fragment">字符串和方法</li>
+            <li class="fragment">常用数据类型（数组，值域，块，哈希，符号）</li>
+            <li class="fragment">Ruby类</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>字符串和方法</h2>
+<pre><code>
+# 注释
+'foo'                  # 单引号字符串
+"bar"                  # 双引号字符串
+"foo" + "bar"          # 字符串连接
+first_name = "Michael" # 变量赋值
+"#{first_name} Hartl"  # 字符串插值
+puts first_name        # 打印字符串
+p first_name           # 打印字符串
+print first_name       # 打印字符串
+</code></pre>
+<p class="fragment">单引号和双引号字符串的区别：插值和转义</p>
+        </section>
+
+        <section>
+          <h2>对象和消息传送</h2>
+          <p>在 Ruby 中,一切皆对象,包括字符串和 nil 都是，对象的作用:响应消息</p>
+<pre><code>
+"foobar".length
+"foobar".empty?
+"".empty?
+nil.empty?
+nil.to_s.empty?
+x = "foo"
+puts "x is not empty" if !x.empty?
+string = "foobar"
+puts "The string '#{string}' is nonempty." unless string.empty?
+</code></pre>
+        </section>
+
+        <section>
+          <h2>定义方法</h2>
+<pre><code>
+def string_message(str = '')
+  if str.empty?
+    "It's an empty string!"
+  else
+    "The string is nonempty."
+  end
+end
+</code></pre>
+<p>参数可选和默认值，不用显式返回，方法调用括号可选</p>
+        </section>
+
+        <section>
+          <h2>标题的辅助方法</h2>
+          <pre><code>
+module ApplicationHelper
+  def full_title(page_title = '')
+    base_title = "Ruby on Rails Tutorial Sample App"
+    if page_title.empty?
+      base_title
+    else
+      page_title + " | " + base_title
+    end
+  end
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>数组(Array)</h2>
+<pre><code>
+"foo bar baz".split
+"fooxbarxbazx".split('x')
+a = [42, 8, 17]
+a[0]
+a[-1]
+a.first
+a.last
+a.length
+a.empty?
+a.include?(42)
+a.sort
+a.reverse
+a.shuffle
+</code></pre>
+        </section>
+
+        <section>
+          <h2>数组(Array)</h2>
+<pre><code>
+a.push 6
+a.shift
+a.pop
+a &lt;&lt; 7
+a &lt;&lt; "foo" &lt;&lt; "bar"
+a.join
+a.join ","
+</code></pre>
+        </section>
+
+        <section>
+          <h2>值域(Range)</h2>
+<pre><code>
+r = 0..9
+r.to_a
+a = %w[foo bar baz quux]
+a[0..2]
+a = (0..9).to_a
+a[2..(a.length-1)]
+a[2..-1]
+('a'..'e').to_a
+</code></pre>
+        </section>
+
+        <section>
+          <h2>块(Block)</h2>
+          <p>块就是闭包(closure),是一种匿名函数,其中附带了一些数据。</p>
+          <pre><code>
+(1..5).each { |i| puts 2 * i }
+(1..5).each do |i|
+  puts 2 * i
+end
+3.times { puts "Betelgeuse!" }
+(1..5).map { |i| i**2 }
+%w[a b c].map { |char| char.upcase }
+%w[A B C].map(&:downcase)
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>哈希(Hash)</h2>
+<pre><code>
+user = {}
+user["first_name"] = "Michael"
+user["last_name"] = "Hartl"
+user["first_name"]
+user
+
+user = { "first_name" => "Michael", "last_name" => "Hartl" }
+</code></pre>
+        </section>
+
+        <section>
+          <h2>符号(Symbol)</h2>
+<pre><code>
+user = { :name => "Michael Hartl", :email => "michael@example.com" }
+user[:name]
+h2 = { name: "Michael Hartl", email: "michael@example.com" }
+</code></pre>
+        </section>
+
+        <section>
+          <h2>嵌套哈希</h2>
+          <pre><code>
+params = {}
+params[:user] = { name: "Michael Hartl", email: "mhartl@example.com" }
+params
+params[:user][:email]
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>迭代器的Each方法</h2>
+<pre><code>
+flash = { success: "It worked!", danger: "It failed." }
+flash.each do |key, value|
+  puts "Key #{key.inspect} has value #{value.inspect}"
+end
+</code></pre>
+        </section>
+
+        <section>
+          <h2>重温引入 CSS 的代码</h2>
+          <pre><code>
+&lt;%= stylesheet_link_tag 'application', media: 'all', 
+  'data-turbolinks-track' => true %&gt;
+
+# 调用函数时可以省略括号
+stylesheet_link_tag('application', media: 'all', 
+  'data-turbolinks-track' => true)
+
+# 如果最后一个参数是哈希,可以省略花括号
+stylesheet_link_tag 'application', { media: 'all', 
+  'data-turbolinks-track' => true }
+
+# 换行 v.s 不换行
+stylesheet_link_tag 'application', { media: 'all', 'data-turbolinks-track' => true }
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>字面构造方法(Literal Constructor)</h2>
+<pre><code>
+s = "foobar"
+s.class
+
+a = [1,3,2]
+a.class
+
+h = {foo: 'bar'}
+h.class
+</code></pre>
+        </section>
+
+        <section>
+          <h2>具名构造方法(Named constructor)</h2>
+<pre><code>
+s = String.new("foobar")
+
+a = Array.new([1,3,2])
+
+h = Hash.new(0)
+</code></pre>
+        </section>
+
+        <section>
+          <h2>类的继承</h2>
+<pre><code>
+s = String.new("foobar")
+s.class
+s.class.superclass
+s.class.superclass.superclass
+</code></pre>
+        </section>
+
+        <section>
+          <h2>自定义类</h2>
+<pre><code>
+class Word
+  def palindrome?(string)
+    string == string.reverse
+  end
+end
+
+w = Word.new
+w.palindrome?("foobar")
+w.palindrome?("level")
+</code></pre>
+        </section>
+
+        <section>
+          <h2>继承String</h2>
+<pre><code>
+class Word &lt; String
+  def palindrome?
+    self = self.reverse
+  end
+end
+
+s = Word.new("level")
+s.palindrome?
+s.length
+</code></pre>
+<p>Ruby和其他语言相比，最强大的特性之一</p>
+        </section>
+
+        <section>
+          <h2>修改内置的类(Open Class)</h2>
+<pre><code>
+class String
+  def palindrome?
+    self == self.reverse
+  end
+end
+
+"deified".palindrome?
+</code></pre>
+        </section>
+
+        <section>
+          <h2>用户类</h2>
+<pre><code>
+# example_user.rb
+class User
+  attr_accessor :name, :email
+  def initialize(attributes = {})
+    @name = attributes[:name]
+    @email = attributes[:email]
+  end
+
+  def formatted_email
+    "#{@name} &lt;#{@email}&gt;"
+  end
+end
+</code></pre>
+        </section>
+
+        <section>
+          <h2>课后练习</h2>
+          <ul>
+            <li>实现一个方法，随机打乱字符串输出 string_shuffle("foobar") => "oobfra"</li>
+            <li>修改内置类String，实现shuffle方法</li>
+            <li>创建三个哈希,分别命名为 person1 、 person2 和 person3 ,把名和姓赋值给 :first 和 :last 键。然后
+创建一个名为 params 的哈希,让 params[:father] 对应 person1 , params[:mother] 对应 person2 ,
+params[:child] 对应 person3 。验证一下 params[:father][:first] 的值是否正确。</li>
+            <li>找一个在线版 Ruby API 文档,了解哈希的 merge 方法的用法。下面这个表达式的计算结果是什么?
+{ "a" => 100, "b" => 200 }.merge({ "b" => 300 })</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+          <p><a href="04.html">下一课</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

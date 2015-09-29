@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>用Ruby解leetcode算法题</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>用Ruby解Leetcode算法题</h1>
+          <h3>Ruby Conf China 2015</h3>
+          <p><small>By <a href="http://twitter.com/quakewang">@quakewang</a></small></p>
+        </section>
+
+        <section>
+          <h2>Leetcode</h2>
+          <ul>
+            <li class="fragment"><a href="https://leetcode.com/" target="_blank">leetcode.com</a></li>
+            <li class="fragment">一个在线编程网站，收集了IT公司的面试题，包括算法，数据库和shell</li>
+            <li class="fragment">算法题支持多种语言，包括C, C++, Java, Python等</li>
+            <li class="fragment">2015年3月份加入了Ruby的支持</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>算法题编程界面</h2>
+          <ul>
+            <li class="fragment"><a href="images/leetcode-list.png" target="_blank"><img src="images/leetcode-list.png" width="200"></a></li>
+            <li class="fragment"><a href="images/leetcode-editor.png" target="_blank"><img src="images/leetcode-editor.png" width="200"></a></li>
+            <li class="fragment"><a href="images/leetcode-submission.png" target="_blank"><img src="images/leetcode-submission.png" width="200"></a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>为什么要做算法题</h2>
+          <ul>
+            <li class="fragment">面试 - 涵盖了各种经典算法题</li>
+            <li class="fragment">学习 - 理解数据结构和解题思路</li>
+            <li class="fragment">休闲 - 每天花5~30分钟做几道题目</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>为什么要用Ruby来做算法题</h2>
+          <ul>
+            <li class="fragment">体验Ruby语言的生产力和乐趣</li>
+            <li class="fragment">学习Ruby内置对象和方法</li>
+            <li class="fragment">其他的语言...我不熟 :(</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Ruby语言的生产力和乐趣(I)</h2>
+          <a href="https://leetcode.com/problems/permutations/" target="_blank">Permutations</a>
+          <pre>
+Given a collection of numbers, return all possible permutations.
+
+For example,
+[1,2,3] have the following permutations:
+[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], and [3,2,1].
+          </pre>
+          <pre class="fragment">
+// Java
+public List&lt;List&lt;Integer&gt;&gt; permute(int[] num) {
+    LinkedList&lt;List&lt;Integer&gt;&gt; res = new LinkedList&lt;List&lt;Integer&gt;&gt;();
+    res.add(new ArrayList&lt;Integer&gt;());
+    for (int n : num) {
+        int size = res.size();
+        for (; size &gt; 0; size--) {
+            List&lt;Integer&gt; r = res.pollFirst();
+            for (int i = 0; i &lt;= r.size(); i++) {
+                List&lt;Integer&gt; t = new ArrayList&lt;Integer&gt;(r);
+                t.add(i, n);
+                res.add(t);
+            }
+        }
+    }
+    return res;
+}
+          </pre>
+        </section>
+
+        <section>
+          <h2>Ruby语言的生产力和乐趣(I)</h2>
+          <a href="https://leetcode.com/problems/permutations/" target="_blank">Permutations</a>
+          <pre><code>
+def permute(nums)
+    nums.permutation.to_a
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby语言的生产力和乐趣(II)</h2>
+          <a href="https://leetcode.com/problems/length-of-last-word/" target="_blank">Length of Last Word</a>
+          <pre>
+Given a string s consists of upper/lower-case alphabets and empty space characters ' ', return the length of last word in the string.
+
+If the last word does not exist, return 0.
+
+Note: A word is defined as a character sequence consists of non-space characters only.
+
+For example, 
+Given s = "Hello World",
+return 5.
+          </pre>
+          <pre class="fragment"><code>
+def length_of_last_word(s)
+  words = s.split(' ')
+  words.last ? words.last.length : 0
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Ruby语言的生产力和乐趣(III)</h2>
+          <a href="https://leetcode.com/problems/add-digits/" target="_blank">Add Digits</a>
+          <pre>
+Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.
+
+For example:
+
+Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. Since 2 has only one digit, return it.
+
+Follow up:
+Could you do it without any loop/recursion in O(1) runtime?
+          </pre>
+
+          <pre class="fragment"><code>
+def add_digits(num)
+    r = num.to_s.chars.map(&:to_i).reduce(:+)
+    r &lt;= 9 ? r : add_digits(r)
+end
+          </code></pre>
+          </section>
+
+        <section>
+          <h2>学习Ruby内置对象和方法(I)</h2>
+          <a href="https://leetcode.com/problems/add-binary/" target="_blank">Add Binary</a>
+          <pre>
+Given two binary strings, return their sum (also a binary string).
+
+For example,
+a = "11"
+b = "1"
+Return "100".
+          </pre>
+
+          <pre class="fragment"><code>
+# @param {String} a
+# @param {String} b
+# @return {String}
+def add_binary(a, b)
+    (a.to_i(2) + b.to_i(2)).to_s(2)
+end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>学习Ruby内置对象和方法(II)</h2>
+        </section>
+
+        <section>
+          <h2>学习Ruby内置对象和方法(III)</h2>
+        </section>
+
+        <section>
+          <h2>关于作弊(I)</h2>
+        </section>
+
+        <section>
+          <h2>关于作弊(II)</h2>
+        </section>
+
+        <section>
+          <h2>关于作弊(III)</h2>
+        </section>
+
+        <section>
+          <h2>我的解法 v.s 别人的解法(I)</h2>
+          <a href="http://maskray.me/blog/2014-06-29-leetcode-solutions">http://maskray.me/blog/2014-06-29-leetcode-solutions</a>
+        </section>
+
+        <section>
+          <h2>我的解法 v.s 别人的解法(II)</h2>
+          <a href="http://maskray.me/blog/2014-06-29-leetcode-solutions">http://maskray.me/blog/2014-06-29-leetcode-solutions</a>
+        </section>
+
+        <section>
+          <h2>我的解法 v.s 别人的解法(III)</h2>
+          <a href="http://maskray.me/blog/2014-06-29-leetcode-solutions">http://maskray.me/blog/2014-06-29-leetcode-solutions</a>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

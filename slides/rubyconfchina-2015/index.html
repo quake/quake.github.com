@@ -131,7 +131,7 @@ If the last word does not exist, return 0.
 
 Note: A word is defined as a character sequence consists of non-space characters only.
 
-For example, 
+For example,
 Given s = "Hello World",
 return 5.
           </pre>
@@ -152,14 +152,11 @@ Given a non-negative integer num, repeatedly add all its digits until the result
 For example:
 
 Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. Since 2 has only one digit, return it.
-
-Follow up:
-Could you do it without any loop/recursion in O(1) runtime?
           </pre>
 
           <pre class="fragment"><code>
 def add_digits(num)
-    r = num.to_s.chars.map(&:to_i).reduce(:+)
+    r = num.to_s.chars.map(&amp;:to_i).reduce(:+)
     r &lt;= 9 ? r : add_digits(r)
 end
           </code></pre>
@@ -189,27 +186,83 @@ end
 
         <section>
           <h2>学习Ruby内置对象和方法(II)</h2>
+          <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank">Best Time to Buy and Sell Stock II</a>
+          <pre>
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one and sell one share of the stock multiple times). However, you may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+          </pre>
+          <pre class="fragment"><code>
+# @param {Integer[]} prices
+# @return {Integer}
+def max_profit(prices)
+    prices.each_cons(2).inject(0){|s,a| [s+a[1]-a[0], s].max}
+end
+          </code></pre>
         </section>
 
         <section>
           <h2>学习Ruby内置对象和方法(III)</h2>
+          <a href="https://leetcode.com/problems/anagrams/" target="_blank">Group Anagrams</a>
+          <pre>
+Given an array of strings, group anagrams together.
+
+For example, given: ["eat", "tea", "tan", "ate", "nat", "bat"],
+Return:
+
+[
+  ["ate", "eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+          </pre>
+          <pre class="fragment"><code>
+# @param {String[]} strs
+# @return {String[][]}
+def group_anagrams(strs)
+  strs.inject(Hash.new([])) do |h, s|
+    h[s.chars.sort.join] += [s]
+    h
+  end.map{|k, v| v.sort}
+end
+          </code></pre>
         </section>
 
         <section>
           <h2>关于作弊(I)</h2>
+https://leetcode.com/problems/regular-expression-matching/
         </section>
 
         <section>
           <h2>关于作弊(II)</h2>
+https://leetcode.com/problems/n-queens-ii/
         </section>
 
         <section>
           <h2>关于作弊(III)</h2>
+https://leetcode.com/problems/count-primes/
         </section>
 
         <section>
           <h2>我的解法 v.s 别人的解法(I)</h2>
-          <a href="http://maskray.me/blog/2014-06-29-leetcode-solutions">http://maskray.me/blog/2014-06-29-leetcode-solutions</a>
+          <a href="https://leetcode.com/problems/add-digits/" target="_blank">Add Digits</a>
+          <pre>
+Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.
+
+For example:
+
+Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. Since 2 has only one digit, return it.
+
+Follow up:
+Could you do it without any loop/recursion in O(1) runtime?
+          </pre>
+
+          <pre class="fragment"><code>
+# https://en.wikipedia.org/wiki/Digital_root
+def add_digits(num)
+    1 + (num - 1) % 9
+end
+          </code></pre>
         </section>
 
         <section>

@@ -74,8 +74,8 @@
         <section>
           <h2>为什么要用Ruby来做算法题</h2>
           <ul>
-            <li class="fragment">体验Ruby语言的生产力和乐趣</li>
-            <li class="fragment">学习Ruby内置对象和方法</li>
+            <li class="fragment">体验Ruby语言的生产力</li>
+            <li class="fragment">学习Ruby的不常用方法</li>
             <li class="fragment">其他的语言...我不熟 :(</li>
           </ul>
         </section>
@@ -112,17 +112,17 @@ public List&lt;List&lt;Integer&gt;&gt; permute(int[] num) {
         </section>
 
         <section>
-          <h2>Ruby语言的生产力和乐趣(I)</h2>
+          <h2>Ruby语言的生产力(I)</h2>
           <a href="https://leetcode.com/problems/permutations/" target="_blank">Permutations</a>
           <pre><code>
 def permute(nums)
-    nums.permutation.to_a
+  nums.permutation.to_a
 end
           </code></pre>
         </section>
 
         <section>
-          <h2>Ruby语言的生产力和乐趣(II)</h2>
+          <h2>Ruby语言的生产力(II)</h2>
           <a href="https://leetcode.com/problems/length-of-last-word/" target="_blank">Length of Last Word</a>
           <pre>
 Given a string s consists of upper/lower-case alphabets and empty space characters ' ', return the length of last word in the string.
@@ -144,7 +144,7 @@ end
         </section>
 
         <section>
-          <h2>Ruby语言的生产力和乐趣(III)</h2>
+          <h2>Ruby语言的生产力(III)</h2>
           <a href="https://leetcode.com/problems/add-digits/" target="_blank">Add Digits</a>
           <pre>
 Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.
@@ -156,14 +156,14 @@ Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. Since 2 has only one
 
           <pre class="fragment"><code>
 def add_digits(num)
-    r = num.to_s.chars.map(&amp;:to_i).reduce(:+)
-    r &lt;= 9 ? r : add_digits(r)
+  r = num.to_s.chars.map(&amp;:to_i).reduce(:+)
+  r &lt;= 9 ? r : add_digits(r)
 end
           </code></pre>
           </section>
 
         <section>
-          <h2>学习Ruby内置对象和方法(I)</h2>
+          <h2>学习Ruby的不常用方法(I)</h2>
           <a href="https://leetcode.com/problems/add-binary/" target="_blank">Add Binary</a>
           <pre>
 Given two binary strings, return their sum (also a binary string).
@@ -179,13 +179,13 @@ Return "100".
 # @param {String} b
 # @return {String}
 def add_binary(a, b)
-    (a.to_i(2) + b.to_i(2)).to_s(2)
+  (a.to_i(2) + b.to_i(2)).to_s(2)
 end
           </code></pre>
         </section>
 
         <section>
-          <h2>学习Ruby内置对象和方法(II)</h2>
+          <h2>学习Ruby的不常用方法(II)</h2>
           <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank">Best Time to Buy and Sell Stock II</a>
           <pre>
 Say you have an array for which the ith element is the price of a given stock on day i.
@@ -196,13 +196,13 @@ Design an algorithm to find the maximum profit. You may complete as many transac
 # @param {Integer[]} prices
 # @return {Integer}
 def max_profit(prices)
-    prices.each_cons(2).inject(0){|s,a| [s+a[1]-a[0], s].max}
+  prices.each_cons(2).inject(0){|s,a| [s+a[1]-a[0], s].max}
 end
           </code></pre>
         </section>
 
         <section>
-          <h2>学习Ruby内置对象和方法(III)</h2>
+          <h2>学习Ruby的不常用方法(III)</h2>
           <a href="https://leetcode.com/problems/anagrams/" target="_blank">Group Anagrams</a>
           <pre>
 Given an array of strings, group anagrams together.
@@ -230,17 +230,62 @@ end
 
         <section>
           <h2>关于作弊(I)</h2>
-https://leetcode.com/problems/regular-expression-matching/
+          <a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank">Regular Expression Matching</a>
+          <pre>Implement regular expression matching with support for '.' and '*'.</pre>
+          <img src="images/cheet-i.png"/>
+        </section>
+
+        <section>
+          <h2>关于作弊(I)</h2>
+          <p>使用Ruby内置对象</p>
+          <pre><code>
+# @param {String} s
+# @param {String} p
+# @return {Boolean}
+def is_match(s, p)
+  s =~ /^#{p}$/ ? true : false
+end
+          </code></pre>
         </section>
 
         <section>
           <h2>关于作弊(II)</h2>
-https://leetcode.com/problems/n-queens-ii/
+          <a href="https://leetcode.com/problems/count-primes/" target="_blank">Count Primes</a>
+          <pre>Count the number of prime numbers less than a non-negative number.</pre>
+          <img src="images/cheet-ii.png"/>
+        </section>
+
+        <section>
+          <h2>关于作弊(II)</h2>
+          <p>require</p>
+          <pre><code>
+# @param {Integer} n
+# @return {Integer}
+require 'prime'
+def count_primes(n)
+  Prime.each(n - 1).count
+end
+          </code></pre>
         </section>
 
         <section>
           <h2>关于作弊(III)</h2>
-https://leetcode.com/problems/count-primes/
+          <a href="https://leetcode.com/problems/n-queens-ii/" target="_blank">N-Queens II</a>
+          <pre>Follow up for N-Queens problem. Now, instead outputting board configurations, return the total number of distinct solutions.</pre>
+          <img src="images/cheet-iii.png"/>
+        </section>
+
+        <section>
+          <h2>关于作弊(III)</h2>
+          <p>Test Driven Development</p>
+          <pre><code>
+# @param {Integer} n
+# @return {Integer}
+def total_n_queens(n)
+  [0,1,0,0,2,10,4,40,92,352,724,2680,14200,73712,
+  365596,2279184,14772512,95815104,666090624][n]
+end
+          </code></pre>
         </section>
 
         <section>
@@ -263,16 +308,50 @@ def add_digits(num)
     1 + (num - 1) % 9
 end
           </code></pre>
+
+          <pre class="fragment">类似直接用算数公式证明的题目比如：<a href="https://leetcode.com/problems/perfect-squares/" target="_blank">Perfect Squares</a></pre>
         </section>
 
         <section>
           <h2>我的解法 v.s 别人的解法(II)</h2>
-          <a href="http://maskray.me/blog/2014-06-29-leetcode-solutions">http://maskray.me/blog/2014-06-29-leetcode-solutions</a>
+          <a href="https://leetcode.com/problems/single-number/" target="_blank">Single Number</a>
+          <pre>Given an array of integers, every element appears twice except for one. Find that single one.</pre>
+<pre class="fragment"><code>
+# @param {Integer[]} nums
+# @return {Integer}
+def single_number(nums)
+   nums.sort.each_slice(2).find{|s| s[0] != s[1]}[0]
+end
+</code></pre>
+
+<pre class="fragment"><code>
+def single_number(nums)
+  nums.inject(:^)
+end
+</code></pre>
+        <pre class="fragment">用XOR操作解Single Number系列的<a href="https://leetcode.com/discuss/54970/an-general-way-to-handle-all-this-sort-of-questions" target="_blank">通用解法</a></pre>
         </section>
 
         <section>
           <h2>我的解法 v.s 别人的解法(III)</h2>
-          <a href="http://maskray.me/blog/2014-06-29-leetcode-solutions">http://maskray.me/blog/2014-06-29-leetcode-solutions</a>
+          <a href="https://leetcode.com/problems/majority-element/"target="_blank">Majority Element</a>
+          <pre>Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.You may assume that the array is non-empty and the majority element always exist in the array.</pre>
+<pre class="fragment"><code>
+# @param {Integer[]} nums
+# @return {Integer}
+def majority_element(nums)
+    nums.sort[nums.size/2]
+end
+</code></pre>
+
+<pre class="fragment"><code>
+def majority_element(nums)
+    nums.inject([0, 0]) {|(x, c), i|
+      c == 0 || x == i ? [i, c+1] : [x, c-1]
+    }[0]
+end
+</code></pre>
+        <pre class="fragment">算法出处以及<a href="http://www.cs.utexas.edu/~moore/best-ideas/mjrty/example.html" target="_blank">单步演示</a></pre>
         </section>
 
         <section>

@@ -90,7 +90,7 @@ For example,
 [1,2,3] have the following permutations:
 [1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], and [3,2,1].
           </pre>
-          <pre class="fragment">
+          <pre class="fragment"><code class="java language-java">
 // Java
 public List&lt;List&lt;Integer&gt;&gt; permute(int[] num) {
     LinkedList&lt;List&lt;Integer&gt;&gt; res = new LinkedList&lt;List&lt;Integer&gt;&gt;();
@@ -108,13 +108,13 @@ public List&lt;List&lt;Integer&gt;&gt; permute(int[] num) {
     }
     return res;
 }
-          </pre>
+          </code></pre>
         </section>
 
         <section>
           <h2>体验Ruby语言的生产力(I)</h2>
           <a href="https://leetcode.com/problems/permutations/" target="_blank">Permutations</a>
-          <pre><code>
+          <pre><code class="ruby language-ruby">
 def permute(nums)
   nums.permutation.to_a
 end
@@ -135,7 +135,7 @@ For example,
 Given s = "Hello World",
 return 5.
           </pre>
-          <pre class="fragment"><code>
+          <pre class="fragment"><code class="ruby language-ruby">
 def length_of_last_word(s)
   words = s.split(' ')
   words.last ? words.last.length : 0
@@ -154,7 +154,7 @@ For example:
 Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. Since 2 has only one digit, return it.
           </pre>
 
-          <pre class="fragment"><code>
+          <pre class="fragment"><code class="ruby language-ruby">
 def add_digits(num)
   r = num.to_s.chars.map(&amp;:to_i).reduce(:+)
   r &lt;= 9 ? r : add_digits(r)
@@ -174,7 +174,7 @@ b = "1"
 Return "100".
           </pre>
 
-          <pre class="fragment"><code>
+          <pre class="fragment"><code class="ruby language-ruby">
 # @param {String} a
 # @param {String} b
 # @return {String}
@@ -192,7 +192,7 @@ Say you have an array for which the ith element is the price of a given stock on
 
 Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one and sell one share of the stock multiple times). However, you may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
           </pre>
-          <pre class="fragment"><code>
+          <pre class="fragment"><code class="ruby language-ruby">
 # @param {Integer[]} prices
 # @return {Integer}
 def max_profit(prices)
@@ -216,7 +216,7 @@ Return:
   ["bat"]
 ]
           </pre>
-          <pre class="fragment"><code>
+          <pre class="fragment"><code class="ruby language-ruby">
 # @param {String[]} strs
 # @return {String[][]}
 def group_anagrams(strs)
@@ -238,7 +238,7 @@ end
         <section>
           <h2>关于作弊(I)</h2>
           <p>使用Ruby内置对象</p>
-          <pre><code>
+          <pre><code class="ruby language-ruby">
 # @param {String} s
 # @param {String} p
 # @return {Boolean}
@@ -258,7 +258,7 @@ end
         <section>
           <h2>关于作弊(II)</h2>
           <p>require</p>
-          <pre><code>
+          <pre><code class="ruby language-ruby">
 # @param {Integer} n
 # @return {Integer}
 require 'prime'
@@ -278,7 +278,7 @@ end
         <section>
           <h2>关于作弊(III)</h2>
           <p>Test Driven Development</p>
-          <pre><code>
+          <pre><code class="ruby language-ruby">
 # @param {Integer} n
 # @return {Integer}
 def total_n_queens(n)
@@ -302,7 +302,7 @@ Follow up:
 Could you do it without any loop/recursion in O(1) runtime?
           </pre>
 
-          <pre class="fragment"><code>
+          <pre class="fragment"><code class="ruby language-ruby">
 # https://en.wikipedia.org/wiki/Digital_root
 def add_digits(num)
     1 + (num - 1) % 9
@@ -316,7 +316,7 @@ end
           <h2>我的解法 v.s 别人的解法(II)</h2>
           <a href="https://leetcode.com/problems/single-number/" target="_blank">Single Number</a>
           <pre>Given an array of integers, every element appears twice except for one. Find that single one.</pre>
-<pre class="fragment"><code>
+<pre class="fragment"><code class="ruby language-ruby">
 # @param {Integer[]} nums
 # @return {Integer}
 def single_number(nums)
@@ -324,7 +324,7 @@ def single_number(nums)
 end
 </code></pre>
 
-<pre class="fragment"><code>
+<pre class="fragment"><code class="ruby language-ruby">
 def single_number(nums)
   nums.inject(:^)
 end
@@ -336,7 +336,7 @@ end
           <h2>我的解法 v.s 别人的解法(III)</h2>
           <a href="https://leetcode.com/problems/majority-element/"target="_blank">Majority Element</a>
           <pre>Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.You may assume that the array is non-empty and the majority element always exist in the array.</pre>
-<pre class="fragment"><code>
+<pre class="fragment"><code class="ruby language-ruby">
 # @param {Integer[]} nums
 # @return {Integer}
 def majority_element(nums)
@@ -344,7 +344,7 @@ def majority_element(nums)
 end
 </code></pre>
 
-<pre class="fragment"><code>
+<pre class="fragment"><code class="ruby language-ruby">
 def majority_element(nums)
     nums.inject([0, 0]) {|(x, c), i|
       c == 0 || x == i ? [i, c+1] : [x, c-1]
@@ -389,7 +389,8 @@ end
         dependencies: [
           { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
           { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
-          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true }
+          { src: '../reveal.js-3.0.0/plugin/notes/notes.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
         ]
       });
 

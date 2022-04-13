@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>CKB Light Client 方案简介</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>Introduction to CKB Light Client</h1>
+          <p><small>By <a href="http://twitter.com/quakewang">@quakewang</a></small></p>
+        </section>
+
+        <section>
+          <h2>What's Light Client?</h2>
+          <p>Light client (or light node) help users access and interact with a blockchain in a <span class="fragment highlight-red">secure</span> and <span class="fragment highlight-red">decentralized</span> manner <span class="fragment highlight-red">without</span> having to sync the full blockchain</p>
+          <ul>
+            <li class="fragment">Neuron</li>
+            <li class="fragment">Exchange</li>
+            <li class="fragment">imToken, MetaMask</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>CKB data-structures</h2>
+          <pre>
+
+    ┌──────────────────────┐   ┌──────────────────────┐   ┌──────────────────────┐
+ ◄──┤parent_hash: H()      │◄──┤parent_hash: H()      │◄──┤parent_hash: H()      │
+    │transactions_root: H()│   │transactions_root: H()│   │transactions_root: H()│
+    └──────────────────────┘   └──────────▲───────────┘   └──────────────────────┘
+                                          │
+                                          │ ◄── merkle tree
+                                  ┌───┬───┴────┬───┐
+                                  │H()│        │H()│
+                                  └───┘        └───┘
+
+                               ┌──┐   ┌──┐  ┌──┐   ┌──┐
+                               │tx│   │tx│  │tx│   │tx│
+                               └──┘   └──┘  └──┘   └──┘
+
+          </pre>
+          <ul>
+            <li><a href="https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0019-data-structures/0019-data-structures.md">Data Structures of Nervos CKB</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Bitcoin SPV</h2>
+          <p>Simple payment verification allows a lightweight client to verify that a transaction is included in the Bitcoin blockchain, without downloading the entire blockchain.</p>
+          <pre>
+
+    ┌──────────────────────┐   ┌──────────────────────┐   ┌──────────────────────┐
+ ◄──┤parent_hash: H()      │◄──┤parent_hash: H()      │◄──┤parent_hash: H()      │
+    │transactions_root: H()│   │transactions_root: H()│   │transactions_root: H()│
+    └──────────────────────┘   └──────────▲───────────┘   └──────────────────────┘
+                                          │
+                                          │
+                                  ┌───┬───┴────┬───┐
+                                  │   │        │P  │ ◄── merkle tree proof
+                                  └───┘        └───┘
+
+                               ┌──┐   ┌──┐
+                               │P │   │tx│
+                               └──┘   └──┘
+
+          </pre>
+          <ul>
+            <li><a href="https://github.com/bitcoinbook/bitcoinbook/blob/a3229bbbc0c929dc53ec11365051a6782695cb52/ch08.asciidoc#simplified-payment-verification-spv-nodes">Mastering Bitcoin</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Download all headers</h2>
+          <pre>
+    ┌──────────────────────┐   ┌──────────────────────┐   ┌──────────────────────┐
+ ◄──┤parent_hash: H()      │◄──┤parent_hash: H()      │◄──┤parent_hash: H()      │
+    │transactions_root: H()│   │transactions_root: H()│   │transactions_root: H()│
+    └──────────────────────┘   └──────────────────────┘   └──────────────────────┘
+          </pre>
+          <ul>
+            <li class="fragment">Linked List</li>
+            <li class="fragment">Header Size * N</li>
+            <li class="fragment">Bitcoin in one year: 80 * 52560 = 4.2 MB</li>
+            <li class="fragment">CKB in one year: 204 * 3942000 = 804 MB</li>
+          </ul>
+        </section>
+
+        <section>
+        <section>
+          <h2>Better linked list?</h2>
+          <p>Merkle Mountain Ranges</p>
+          <pre>
+      ┌─────┐
+      │Root1│
+      └─────┘
+
+  ┌──────┐ ┌──────┐
+  │Block0│ │Block1│ Contains Block0 Hash
+  └──────┘ └──────┘
+          </pre>
+        </section>
+
+        <section>
+          <h2>Better linked list?</h2>
+          <p>Merkle Mountain Ranges Append</p>
+          <pre>
+            ┌─────┐
+            │Root2│
+            └─────┘
+
+      ┌─────┐
+      │     │
+      └─────┘
+
+  ┌──────┐ ┌──────┐  ┌──────┐
+  │Block0│ │Block1│  │Block2│ Contains Root1
+  └──────┘ └──────┘  └──────┘
+          </pre>
+        </section>
+
+        <section>
+          <h2>Better linked list?</h2>
+          <p>Merkle Mountain Ranges Append</p>
+          <pre>
+            ┌─────┐
+            │Root3│
+            └─────┘
+
+      ┌─────┐            ┌─────┐
+      │     │            │     │
+      └─────┘            └─────┘
+
+  ┌──────┐ ┌──────┐  ┌──────┐  ┌──────┐
+  │Block0│ │Block1│  │Block2│  │Block3│ Contains Root2
+  └──────┘ └──────┘  └──────┘  └──────┘
+          </pre>
+        </section>
+
+        <section>
+          <h2>Better linked list?</h2>
+          <p>Merkle Mountain Ranges Append</p>
+          <pre>
+                ┌─────┐
+                │     │                          Time complexity of update: O(log n)
+                └─────┘                Time complexity of proof generation: O(log n)
+
+            ┌─────┐
+            │     │
+            └─────┘
+
+      ┌─────┐            ┌─────┐
+      │     │            │     │
+      └─────┘            └─────┘
+
+  ┌──────┐ ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐
+  │Block0│ │Block1│  │Block2│  │Block3│  │Block4│ Contains Root3
+  └──────┘ └──────┘  └──────┘  └──────┘  └──────┘
+          </pre>
+          <p><a href="https://github.com/opentimestamps/opentimestamps-server/blob/master/doc/merkle-mountain-range.md">Merkle Mountain Ranges</a></p>
+        </section>
+        </section>
+
+        <section>
+          <h2>Verify Transaction</h2>
+          <pre>
+                       log2(N)
+             ┌──────merkle tree proof─────┐
+┌──────────────────────┐   ┌──────────────────────┐
+│root: H()             │   |root: H()             │
+│transactions_root: H()│   │transactions_root: H()│ ◄── tip header
+└───────────▲──────────┘   └──────────────────────┘
+            │
+            │
+    ┌───┬───┴────┬───┐
+    │   │        │P  │ ◄── merkle tree proof
+    └───┘        └───┘
+
+ ┌──┐   ┌──┐
+ │P │   │tx│
+ └──┘   └──┘
+          </pre>
+        </section>
+
+        <section>
+          <section>
+            <h2>Verify longest chain</h2>
+            <p>Tip 1 is a honest chain tip</p>
+            <p>Tip 2 is a malicious chain with 1/3 hashrate</p>
+            <pre>
+                                               ┌────┐
+    ──────────────────────────────────────────►│Tip1│
+                                               └────┘
+
+                                               ┌────┐
+    ──────────────────────────────────────────►│Tip2│
+                                               └────┘
+            </pre>
+          </section>
+
+          <section>
+            <h2>Verify longest chain</h2>
+            <p>Sampling constant with binary distribution, 41 times</p>
+            \[\begin{aligned}
+            ({\frac13})^{41} &lt; 2^{-64}
+            \end{aligned} \]
+            <pre>
+                                               ┌────┐
+    ─┬──────────────────┬───────────┬────┬──┬─►│Tip1│
+     │                  |           |    |  |  └────┘
+     └──────────────────┴───────────┴────┴──┴─
+                                               ┌────┐
+    ─┬──────────────────┬───────────┬────┬──┬─►│Tip2│
+     │                  |           |    |  |  └────┘
+     └──────────────────┴───────────┴────┴──┴─
+            </pre>
+          </section>
+
+          <section>
+            <h2>Forking problem</h2>
+            \[\begin{aligned}
+            ({\frac13})^{2}
+            \end{aligned} \]
+            <pre>
+                                               ┌────┐
+    ─┬──────────────────┬───────────┬────┬──┬─►│Tip1│
+     │                  |           |    |  |  └────┘
+     └──────────────────┴───────────┴──┬─┴──┴─
+                                       │
+                                       └──────── malicious fork
+                                       │       ┌────┐
+    ─┬──────────────────┬───────────┬──┴─┬──┬─►│Tip2│
+     │                  |           |    |  |  └────┘
+     └──────────────────┴───────────┴────┴──┴─
+            </pre>
+          </section>
+
+          <section>
+            <h2>Find fork point effectively</h2>
+            <pre>
+                                               ┌────┐
+    ─┬──────────────────┬───────────┬────┬──┬─►│Tip1│
+     │                  |           |    |  |  └────┘
+    ┬└──────────────────┴───────────┴────┴──┴─
+    │
+    └──────── malicious fork
+    │                                          ┌────┐
+    ┴┬──────────────────┬───────────┬────┬──┬─►│Tip2│
+     │                  |           |    |  |  └────┘
+     └──────────────────┴───────────┴────┴──┴─
+            </pre>
+            <ul>
+              <li class="fragment">Binary Search Approach</li>
+              <li class="fragment">Bounding the Fork Point</li>
+              <li class="fragment">The FlyClient Sampling Protocol</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>FlyClient Paper</h2>
+            <p><a href="https://eprint.iacr.org/2019/226.pdf">FlyClient: Super-Light Clients for Cryptocurrencies</a></p>
+            <ul>
+              <li>Variable difficulty</li>
+              <li>Non-Interactive and Transferable Proofs</li>
+              <li>Short fork optimization</li>
+              <li>Deploying FlyClient</li>
+              <li class="fragment">CKB in 34 years (2 ** 27 blocks): 500 * (208 + (27 * 32)) = 536 KB</li>
+            </ul>
+            <p></p>
+          </section>
+        </section>
+
+        <section>
+          <h2>block filter</h2>
+          <p>How the light client gets the transactions it is interested in?</p>
+          <pre>
+
+    ┌──────────────────────┐
+    │parent_hash: H()      │
+    │transactions_root: H()│
+    └─────────▲────────────┘
+              │
+              │
+      ┌───┬───┴────┬───┐
+      │H()│        │H()│
+      └───┘        └───┘
+
+    ┌──┐   ┌──┐  ┌──┐   ┌──┐
+    │tx│   │tx│  │tx│   │tx│ ◄── input: alice
+    └──┘   └──┘  └──┘   └──┘     output: bob
+          </pre>
+        </section>
+
+        <section>
+          <h2>Server Side block filter</h2>
+          <pre>
+
+ ┌────────────┐
+ │Light Client├───┬──────────────────────────────────────────
+ └────────────┘   | Send filter (bob)        ▲
+                  │                          │
+ ┌────────────┐   ▼                          │  Send merkle proof
+ │Full Node   ├──────────────────────────────────────────────
+ └────────────┘                    │         │         │
+                                   │         │         │
+                                ┌──────┐  ┌──────┐  ┌──────┐
+                                │Block1|  │Block2|  │Block3|
+                                └──────┘  └──────┘  └──────┘
+                                             |
+                                             |
+                                            tx4 (alice send to bob)
+          </pre>
+        </section>
+
+        <section>
+          <h2>Server Side block filter</h2>
+          <p><a href="https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki">BIP37</a></p>
+          <figure>
+            <figcaption>Pros</figcaption>
+            <ul>
+              <li>Low resource requirements on light client</li>
+              <li>Easy to implement</li>
+            </ul>
+          </figure>
+          <figure>
+            <figcaption>Cons</figcaption>
+            <ul>
+              <li>Privacy leak and tx censorship</li>
+              <li>Easy to DDoS</li>
+            </ul>
+          </figure>
+        </section>
+
+        <section>
+          <h2>Client Side block filter</h2>
+          <pre>
+    ┌────────────┐
+    │Light Client├────────────────────────────────────────────────────┬────────
+    └────────────┘   ▲ Send filter (all txs)        ▲ Send filter     |
+                     │                              │                 | Get Block2
+    ┌────────────┐   |                              |                 ▼
+    │Full Node   ├─────────────────────────────────────────────────────────────
+    └────────────┘   │                              │
+                     │                              │
+                 ┌──────┐                       ┌──────┐
+                 │Block1|                       │Block2|
+                 └──────┘                       └──────┘
+          </pre>
+        </section>
+
+        <section>
+          <h2>Client Side block filter</h2>
+          <p><a href="https://github.com/bitcoin/bips/blob/master/bip-0157.mediawiki">BIP157</a></p>
+          <figure>
+            <figcaption>Pros</figcaption>
+            <ul>
+              <li>Low resource requirements on full node</li>
+              <li>No privacy leak</li>
+            </ul>
+          </figure>
+          <figure>
+            <figcaption>Cons</figcaption>
+            <ul>
+              <li>Requires a certain amount of computing and bandwidth resources</li>
+            </ul>
+          </figure>
+        </section>
+
+        <section>
+          <h2>Better bloom filter?</h2>
+          <p>N is the number of elements, P is the false-positive probability, bloom filter size:</p>
+          \[\begin{aligned}
+          bits = N \times \log_2e \times \log_2P
+          \end{aligned} \]
+          <p>CKB 1000 transactions in one block, N = 1000, P = 2 ** 13 => 1000 * 1.44 * 13 bits = 2.34 KB</p>
+        </section>
+
+        <section>
+          <h2>Better bloom filter?</h2>
+          <p>Theoretical minimum for a probabilistic data structure</p>
+          \[\begin{aligned}
+          bits = N \times \log_2P
+          \end{aligned} \]
+          <p><a href="https://github.com/bitcoin/bips/blob/master/bip-0158.mediawiki">BIP158</a> vs BIP37 bloom filter -44%: <a href="https://en.wikipedia.org/wiki/Golomb_coding">Golomb coded sets</a></p>
+        </section>
+
+        <section>
+        <section>
+          <h2>Golomb coded alphabetum</h2>
+          <pre><code class="ruby language-ruby">
+hash -> Digest::MD5.hexdigest(s)[-8..].hex % (N * P)
+N    -> 24
+P    -> 2 ** 6 = 64
+          </code></pre>
+          <table>
+            <thead>
+              <tr>
+                <th>String</th>
+                <th>Hash</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Alpha</td>
+                <td>408</td>
+              </tr>
+              <tr>
+                <td>...</td>
+                <td>...</td>
+              </tr>
+              <tr>
+                <td>Omicron</td>
+                <td>1001</td>
+              </tr>
+              <tr>
+                <td>...</td>
+                <td>...</td>
+              </tr>
+              <tr>
+                <td>Omega</td>
+                <td>812</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <h2>Golomb coded alphabetum</h2>
+          <p>Uniformly distributed hash result</p>
+          <pre><code class="ruby language-ruby">
+alphabetum = %w(Alpha Beta Gamma Delta Epsilon Zeta Eta Theta Iota Kappa Lambda Mu Nu Xi Omicron Pi Rho Sigma Tau Upsilon Phi Chi Psi Omega)
+alphabetum.map{|s| Digest::MD5.hexdigest(s)[-8..].hex % 1536}.sort
+[181, 354, 359, 395, 407, 408, 662, 740, 771, 794, 804, 807, 812, 1001, 1021, 1026, 1090, 1092, 1126, 1126, 1132, 1243, 1315, 1367]
+</code></pre>
+          <img src="images/alphabetum-sort.png" alt="alphabetum sort" width="500"/>
+        </section>
+
+        <section>
+          <h2>Golomb coded alphabetum</h2>
+          <p>Convert uniformly distribution to geometric distribution</p>
+          <pre><code class="ruby language-ruby">
+sorted.each_cons(2).map{|a| a[1] - a[0]}.sort
+[0, 1, 2, 3, 5, 5, 5, 6, 10, 12, 20, 23, 31, 34, 36, 52, 64, 72, 78, 111, 173, 189, 254]
+</code></pre>
+          <img src="images/geometric-distribution.png" alt="geometric distribution" width="500"/>
+        </section>
+
+        <section>
+          <h2>Unary encoding</h2>
+          <p>P = 2 ** 6</p>
+          <table>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>110</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>1110</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>11110</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>111110</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <h2>Golomb encoding</h2>
+          <pre><code class="ruby language-ruby">
+[181, 354, 359, 395, 407, 408, 662, 740, 771, 794, 804, 807, 812, 1001, 1021, 1026, 1090, 1092, 1126, 1126, 1132, 1243, 1315, 1367]
+sorted.each_cons(2).map{|a| ((a[1] - a[0]).divmod 64)}
+[[2, 45], [0, 5], [0, 36], [0, 12], [0, 1], [3, 62], [1, 14], [0, 31], [0, 23], [0, 10], [0, 3], [0, 5], [2, 61], [0, 20], [0, 5], [1, 0], [0, 2], [0, 34], [0, 0], [0, 6], [1, 47], [1, 8], [0, 52]]
+            </code></pre>
+          <table>
+            <thead>
+              <tr>
+                <th>Number</th>
+                <th>Quotient</th>
+                <th>Modulus</th>
+                <th>Golomb encoding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>181</td>
+                <td>2</td>
+                <td>53</td>
+                <td>110 | 110101</td>
+              </tr>
+              <tr>
+                <td>173</td>
+                <td>2</td>
+                <td>45</td>
+                <td>110 | 101101</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>0</td>
+                <td>5</td>
+                <td>0 | 000101</td>
+              </tr>
+              <tr>
+                <td>36</td>
+                <td>0</td>
+                <td>36</td>
+                <td>0 | 100100</td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>0</td>
+                <td>12</td>
+                <td>0 | 001100</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1 | 000001</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <h2>Golomb encoding</h2>
+          <p>Theoretical minimum for a probabilistic data structure</p>
+          \[\begin{aligned}
+          bits = N \times \log_2P
+          \end{aligned} \]
+          <p>
+            <span class="fragment fade-in">
+              <span class="fragment highlight-green">110</span>
+            </span>
+            <span class="fragment fade-in">
+              <span class="fragment fade-in highlight-red">110101</span>
+            </span>
+            <span class="fragment fade-in">
+              <span class="fragment fade-in highlight-green">110</span>
+            </span>
+            <span class="fragment fade-in">
+              <span class="fragment fade-in highlight-red">101101</span>
+            </span>
+            <span class="fragment fade-in">
+              <span class="fragment highlight-green">0</span>
+            </span>
+            <span class="fragment fade-in">
+              <span class="fragment highlight-red">000101</span>
+            </span>
+            <span class="fragment fade-in">010010000011000000001111011111010001110001111100101110001010000001100001011101111010010100000010110000000000001001000100000000000011010101111100010000110100</span></span>
+          </p>
+          <p>
+            <span class="fragment fade-in">181 / (24 * 6) =~ 1.25</span>
+          </p>
+        </section>
+        </section>
+
+        <section>
+          <h2>CKB Light Client</h2>
+          <ul>
+            <li>FlyClient protocol</li>
+            <li>Client side block filter protocol</li>
+            <li>0.2 ~ 0.3% download size vs full node, good enough?</li>
+            <li><a href="https://eprint.iacr.org/2019/792.pdf">TICK: Tiny Client for Blockchains (AVL hash tree)</a></li>
+            <li><a href="https://www.usenix.org/system/files/sec19fall_matetic_prepub.pdf">BITE: Bitcoin Lightweight Client Privacy using Trusted Execution (SGX)</a></li>
+            <li><a href="https://github.com/yangby-cryptape/ckb-light-client/tree/develop">CKB light client lib (working in progress)</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/math/math.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

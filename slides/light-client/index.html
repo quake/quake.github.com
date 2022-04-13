@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>CKB Light Client 方案简介</title>
+    <title>Introduction to CKB Light Client</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -600,14 +600,21 @@ sorted.each_cons(2).map{|a| ((a[1] - a[0]).divmod 64)}
         </section>
 
         <section>
-          <h2>CKB Light Client</h2>
+          <h2>CKB Light Client Protocol</h2>
           <ul>
             <li>FlyClient protocol</li>
             <li>Client side block filter protocol</li>
             <li>0.2 ~ 0.3% download size vs full node, good enough?</li>
             <li><a href="https://eprint.iacr.org/2019/792.pdf">TICK: Tiny Client for Blockchains (AVL hash tree)</a></li>
             <li><a href="https://www.usenix.org/system/files/sec19fall_matetic_prepub.pdf">BITE: Bitcoin Lightweight Client Privacy using Trusted Execution (SGX)</a></li>
-            <li><a href="https://github.com/yangby-cryptape/ckb-light-client/tree/develop">CKB light client lib (working in progress)</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>CKB Light Client implementation</h2>
+          <ul>
+            <li><a href="https://github.com/yangby-cryptape/ckb/tree/poc/light-client">CKB light client protocol full node implementation (working in progress)</a></li>
+            <li><a href="https://github.com/yangby-cryptape/ckb-light-client/tree/develop">CKB light client lib implementation (working in progress)</a></li>
           </ul>
         </section>
 

@@ -125,7 +125,7 @@
       ┌─────┐
       │Root1│
       └─────┘
-
+     /       \
   ┌──────┐ ┌──────┐
   │Block0│ │Block1│ Contains Block0 Hash
   └──────┘ └──────┘
@@ -139,11 +139,11 @@
             ┌─────┐
             │Root2│
             └─────┘
-
-      ┌─────┐
-      │     │
-      └─────┘
-
+            /     \
+      ┌─────┐      \
+      │     │       \
+      └─────┘        \
+     /      \         \
   ┌──────┐ ┌──────┐  ┌──────┐
   │Block0│ │Block1│  │Block2│ Contains Root1
   └──────┘ └──────┘  └──────┘
@@ -154,14 +154,14 @@
           <h2>Better linked list?</h2>
           <p>Merkle Mountain Ranges Append</p>
           <pre>
-            ┌─────┐
-            │Root3│
-            └─────┘
-
+              ┌─────┐
+              │Root3│
+              └─────┘
+            /           \
       ┌─────┐            ┌─────┐
       │     │            │     │
       └─────┘            └─────┘
-
+     /       \          /       \
   ┌──────┐ ┌──────┐  ┌──────┐  ┌──────┐
   │Block0│ │Block1│  │Block2│  │Block3│ Contains Root2
   └──────┘ └──────┘  └──────┘  └──────┘
@@ -172,33 +172,48 @@
           <h2>Better linked list?</h2>
           <p>Merkle Mountain Ranges Append</p>
           <pre>
-                ┌─────┐
-                │     │                          Time complexity of update: O(log n)
-                └─────┘                Time complexity of proof generation: O(log n)
-
-            ┌─────┐
-            │     │
-            └─────┘
-
-      ┌─────┐            ┌─────┐
-      │     │            │     │
-      └─────┘            └─────┘
-
+                      ┌─────┐
+                      │Root4│
+                      └─────┘
+                  /             \
+              ┌─────┐            \
+              │     │             \
+              └─────┘              \
+            /           \           \
+      ┌─────┐            ┌─────┐     \
+      │     │            │     │      \
+      └─────┘            └─────┘       \
+      /       \          /      \       \
   ┌──────┐ ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐
   │Block0│ │Block1│  │Block2│  │Block3│  │Block4│ Contains Root3
   └──────┘ └──────┘  └──────┘  └──────┘  └──────┘
           </pre>
-          <p><a href="https://github.com/opentimestamps/opentimestamps-server/blob/master/doc/merkle-mountain-range.md">Merkle Mountain Ranges</a></p>
+        </section>
+
+        <section>
+          <h2>Better linked list?</h2>
+
+          <pre>
+
+      /\         Time complexity of append: O(log n)
+     /  \        Time complexity of proof generation: O(log n)
+    /    \
+<span class="fragment highlight-red">   /\</span>     \
+<span class="fragment highlight-red">  /  \</span>    /\
+<span class="fragment highlight-red"> /\  /\</span><span class="fragment highlight-blue">  /\</span> \
+<span class="fragment highlight-red">/\/\/\/\</span><span class="fragment highlight-blue">/\/\</span><span class="fragment highlight-green">/\</span>
+          </pre>
+          <p><a href="https://github.com/opentimestamps/opentimestamps-server/blob/master/doc/merkle-mountain-range.md">Merkle Mountain Ranges</a>: list of perfectly balance binary trees</p>
         </section>
         </section>
 
         <section>
           <h2>Verify Transaction</h2>
           <pre>
-                       log2(N)
-             ┌──────merkle tree proof─────┐
+                     log2(N)
+             ┌──────mmr proof─────┐
 ┌──────────────────────┐   ┌──────────────────────┐
-│root: H()             │   |root: H()             │
+│root: H()             │   |root: H()             │ ◄── tip mmr root
 │transactions_root: H()│   │transactions_root: H()│ ◄── tip header
 └───────────▲──────────┘   └──────────────────────┘
             │
@@ -399,6 +414,7 @@
 
         <section>
           <h2>Better bloom filter?</h2>
+          <img src="./images/bloom-filter.svg" alt="bloom filter" />
           <p>N is the number of elements, P is the false-positive probability, bloom filter size:</p>
           \[\begin{aligned}
           bits = N \times \log_2e \times \log_2P
@@ -615,6 +631,7 @@ sorted.each_cons(2).map{|a| ((a[1] - a[0]).divmod 64)}
           <ul>
             <li><a href="https://github.com/yangby-cryptape/ckb/tree/poc/light-client">CKB light client protocol full node implementation (working in progress)</a></li>
             <li><a href="https://github.com/yangby-cryptape/ckb-light-client/tree/develop">CKB light client lib implementation (working in progress)</a></li>
+            <li>A Neuron clone on light client</li>
           </ul>
         </section>
 

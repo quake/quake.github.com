@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Rust Newbie Tips</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>Rust Newbie Tips</h1>
+          <p><small>By <a href="http://twitter.com/quakewang">@quakewang</a></small></p>
+        </section>
+
+        <section>
+          <h2>Learning Curve</h2>
+          <img src="./images/learning-curve.png" alt="learning curve" />
+        </section>
+
+        <section>
+          <h2>Background and coding style</h2>
+          <ul>
+            <li>C++</li>
+            <li>FP languages</li>
+            <li>GC languages</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Learn Rust</h2>
+          <ul>
+            <li><a href="https://www.rust-lang.org/learn">www.rust-lang.org/learn</a></li>
+            <li><a href="https://doc.rust-lang.org/std/index.html">The rust standard library</a>
+              <ul>
+                <li>Option, Result, Iterator</li>
+                <li>Vec, Array, Slice</li>
+                <li>Collections</li>
+                <li>Rc, Cell, RefCell</li>
+                <li>Arc, Mutex</li>
+                <li>I/O, async/await</li>
+              </ul>
+            </li>
+            <li>Read source code</li>
+          </ul>
+        </section>
+
+        <section>
+        <section>
+          <h2>Option</h2>
+          <a class="fragment" href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&code=fn%20main()%20%7B%0A%20%20let%20input%20%3D%20Some(42)%3B%0A%20%20let%20double%20%3D%20if%20let%20Some(i)%20%3D%20input%20%7B%0A%20%20%20%20%20%20Some(2%20*%20i)%0A%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20None%0A%20%20%7D%3B%0A%20%20println!(%22The%20answer%20is%20%7Bdouble%3A%3F%7D%22)%3B%0A%7D" target="_blank">
+            <pre><code>
+  let input = Some(42);
+  let double = if let Some(i) = input {
+      Some(2 * i)
+  } else {
+      None
+  };
+  println!("The answer is {double:?}");
+            </code></pre>
+          </a>
+
+          <a class="fragment" href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&code=fn%20main()%20%7B%0A%20%20let%20input%20%3D%20Some(42)%3B%0A%20%20let%20double%20%3D%20input.map(%7Ci%7C%202%20*%20i)%3B%0A%20%20println!(%22The%20answer%20is%20%7Bdouble%3A%3F%7D%22)%3B%0A%7D" target="_blank">
+            <pre><code>
+  let input = Some(42);
+  let double = input.map(|i| 2 * i);
+  println!("The answer is {double:?}");
+            </code></pre>
+          </a>
+        </section>
+
+        <section>
+          <h2>Result</h2>
+          <pre class="fragment"><code>
+  let tls_server_config = match config.tls_server_config {
+      Some(tls_server_config) => tls_server_config,
+      None => {
+          return Err(TransportErrorKind::TlsError(
+              "server config not found".to_string(),
+          ));
+      }
+  };
+          </code></pre>
+
+          <pre class="fragment"><code>
+  let tls_server_config = config.tls_server_config.ok_or_else(||
+      TransportErrorKind::TlsError("server config not found".to_string())
+  )?;
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Iterator</h2>
+          <pre class="fragment"><code>
+  let mut count = 0;
+  for key in keys {
+      let old_value = db.remove(key.as_slice()).expect("db should be ok");
+      if old_value.is_some() {
+          count += 1;
+      }
+  }
+  return count;
+          </code></pre>
+
+          <pre class="fragment"><code>
+  return keys.iter().filter(|key|
+    db.remove(key.as_slice()).expect("db should be ok").is_some()
+  ).count();
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Iterator</h2>
+          <p><a href="https://leetcode.com/problems/house-robber/submissions/" target="_blank">House Robber</a></p>
+          <p>Given an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.</p>
+          <pre class="fragment"><code>
+impl Solution {
+  pub fn rob(nums: Vec&lt;i32&gt;) -> i32 {
+      nums.iter().fold((0, 0), |(a, b), i| (b, (a + i).max(b))).1
+  }
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Functional Programming</h2>
+          <p><a href="https://wiki.haskell.org/Monad_laws" target="_blank">Monad Laws: Left identity, Right identity, Associativity</a></p>
+          <pre><code>
+pub enum Option&lt;T&gt; {
+    None,
+    Some(T),
+}
+
+pub enum Result&lt;T, E&gt; {
+    Ok(T),
+    Err(E),
+}
+
+map / map_or / unwrap_or / ...
+          </code></pre>
+
+          <p>Q: another rust std lib monad example?</p>
+          <pre class="fragment"><code>
+pub enum Poll&lt;T&gt; {
+    Ready(T),
+    Pending,
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Functional Programming</h2>
+
+          <pre><code>
+let mut id = 0;
+loop {
+    if id &gt; chain_tip {
+        break;
+    }
+    do_something(id)
+    id += 10;
+}
+          </code></pre>
+
+          <p class="fragment">Functional programming style is more intuitive than procedural style:</p>
+          <pre class="fragment"><code>
+(0..=chain_tip).step_by(10).for_each(|id| do_something(id))
+          </code></pre>
+        </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Vec</h2>
+            <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&code=fn%20main()%20%7B%0Alet%20mut%20vec%20%3D%20vec!%5B1%2C%202%2C%203%2C%204%2C%205%2C%206%5D%3B%0Alet%20mut%20i%20%3D%200%3B%0Awhile%20i%20%3C%20vec.len()%20%7B%0A%20%20%20%20if%20vec%5Bi%5D%20%25%202%20%3D%3D%200%20%7B%0A%20%20%20%20%20%20%20%20vec.remove(i)%3B%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20i%20%2B%3D%201%3B%0A%20%20%20%20%7D%0A%7D%0Aassert_eq!(vec%2C%20vec!%5B1%2C%203%2C%205%5D)%3B%0A%7D" target="_blank">
+            <pre><code>
+let mut vec = vec![1, 2, 3, 4, 5, 6];
+let mut i = 0;
+while i &lt; vec.len() {
+    if vec[i] % 2 == 0 {
+        vec.remove(i);
+    } else {
+        i += 1;
+    }
+}
+assert_eq!(vec, vec![1, 3, 5]);
+            </code></pre>
+            </a>
+
+            <p class="fragment">Q: more intuitive?</p>
+            <a class="fragment" href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&code=fn%20main()%20%7B%0Alet%20mut%20vec%20%3D%20vec!%5B1%2C%202%2C%203%2C%204%2C%205%2C%206%5D%3B%0Avec.retain(%7Ci%7C%20i%20%25%202%20%3D%3D%201)%3B%0Aassert_eq!(vec%2C%20vec!%5B1%2C%203%2C%205%5D)%3B%0A%7D" target="_blank">
+            <pre><code>
+let mut vec = vec![1, 2, 3, 4, 5, 6];
+vec.retain(|i| i % 2 == 1);
+assert_eq!(vec, vec![1, 3, 5]);
+            </code></pre>
+            </a>
+          </section>
+
+          <section>
+            <h2>Slice</h2>
+            <p><a href="https://leetcode.com/problems/maximum-gap/" target="_blank">Maximum Gap</a></p>
+            <p>Given an integer array nums, return the maximum difference between two successive elements in its sorted form. If the array contains less than two elements, return 0.</p>
+            <pre class="fragment"><code>
+impl Solution {
+  pub fn maximum_gap(mut nums: Vec&lt;i32&gt;) -> i32 {
+    nums.sort_unstable();
+    nums.windows(2).map(|pair| pair[1] - pair[0]).max().unwrap_or_default()
+  }
+}
+            </code></pre>
+            <p class="fragment">Q: Better algorithmic complexity</p>
+          </section>
+
+          <section>
+            <h2>Array, Vec, Slice and Iterator</h2>
+            <ul>
+              <li class="fragment">Arrays are a bit of a second-class citizen in Rust</li>
+              <li class="fragment">Vec impl Deref&lt;Target = [T]&gt;</li>
+              <li class="fragment">Slice v.s. Iterator</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+        <section>
+          <h2>Collections</h2>
+          <p>HashSet</p>
+          <pre><code>
+if seen_outpoints.contains(&input.previous_output) {
+  CellState::Tail
+} else {
+  seen_outpoints.insert(input.previous_output.clone());
+  self.cell(&input.previous_output)
+}
+          </code></pre>
+
+          <pre class="fragment"><code>
+if seen_outpoins.insert(input.previous_output.clone()) {
+  self.cell(&input.previous_output)
+} else {
+  CellState::Tail
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Collections</h2>
+          <p>HashMap</p>
+          <pre><code>
+let mut output_indexs = HashMap::new()
+for (i, tx) in block.commit_transactions().iter().enumerate() {
+    output_indexs.insert(tx.hash(), i);
+}
+</code></pre>
+
+          <pre class="fragment"><code>
+let output_indexs = HashMap::from_iter(
+  block.commit_transactions().iter().enumerate()
+    .map(|(idx, tx)| (tx.hash(), idx))
+)
+</code></pre>
+        </section>
+        </section>
+
+        <section>
+        <section>
+          <h2>GC languages</h2>
+          <ul>
+            <li>Lifetime and ownership</li>
+            <li>Mutability</li>
+            <li>There is no null / nil in Rust</li>
+            <li>There is no partial initialization in Rust (Safe)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Lifetime and ownership</h2>
+          <p>Lifetime Elision</p>
+          <pre><code>
+fn print(s: &str);
+fn print&lt;'a&gt;(s: &'a str);
+
+fn longest_str(a: &str, b: &str) -> &str;
+
+fn build_command(&mut self, args: &str) -> &mut Command
+fn build_command&lt;'a, 'b&gt;(&'a mut self, args: &'b str) -> &'a mut Command
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Lifetime and ownership</h2>
+          <p>Splitting Borrows</p>
+          <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=0c9e62984b768e8acb285e30e3a2adbf" target="_blank">
+          <pre><code>
+          struct Foo {
+              a: i32,
+              b: i32,
+          }
+
+          let mut x = Foo {a: 0, b: 0};
+          let a = &mut x.a;
+          let b = &mut x.b;
+          *a += 1;
+          *b += 10;
+          println!("{} {}", a, b);
+          </code></pre>
+          </a>
+
+          <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&code=fn%20main()%20%7B%0Alet%20mut%20x%20%3D%20%5B1%2C%202%5D%3B%0Alet%20a%20%3D%20%26mut%20x%5B0%5D%3B%0Alet%20b%20%3D%20%26mut%20x%5B1%5D%3B%0Aprintln!(%22%7B%7D%20%7B%7D%22%2C%20a%2C%20b)%3B%0A%7D%0A" target="_blank">
+          <pre><code>
+            let mut x = [1, 2];
+            let a = &mut x[0];
+            let b = &mut x[1];
+            println!("{} {}", a, b);
+          </code></pre>
+          </a>
+        </section>
+
+        <section>
+          <h2>Mutability</h2>
+          <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=a43313285d1bebefa1b6119e897db94d" target="_blank">
+          <pre><code>
+            let mut v = vec!["a", "b", "c"];
+            let a = &v[0];
+            v.push("d");
+            println!("{}", a);
+          </code></pre>
+          </a>
+
+          <pre class="fragment"><code>
+            let mut v = Vec::new();
+            for loop {
+              let i = do_something();
+              v.push(i);
+            }
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>There is no null / nil in Rust</h2>
+          <p>Option is an enum</p>
+          <pre><code>
+enum Option&lt;T&gt; {
+  Some(T),
+  None,
+}
+
+enum Maybe&lt;T&gt; {
+  Just(T),
+  Nothing,
+}
+          </code><pre>
+        </section>
+
+        <section>
+          <h2>There is no partial initialization in Rust (Safe)</h2>
+          <p>Partial initialization</p>
+          <pre><code>
+struct Foo {
+    a: u64,
+    b: String,
+}
+
+let mut foo = Foo {
+  b: "initialized".to_owned(),
+};
+println!("{}", foo.b);
+foo.a = 10;
+          </code></pre>
+        </section>
+        </section>
+
+        <section>
+          <h2>Learn advanced rust</h2>
+          <ul>
+            <li><a href="https://rust-lang.github.io/rust-clippy/master/index.html" target="_blank">Clippy</a></li>
+            <li><a href="https://doc.rust-lang.org/nomicon/intro.html" target="_blank">Rustonomicon</a></li>
+            <li><a href="https://github.com/rust-unofficial/awesome-rust" target="_blank">Participation in open source projects</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/math/math.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

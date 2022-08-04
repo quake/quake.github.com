@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Crowdfunding DAO</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js-3.0.0/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js-3.0.0/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js-3.0.0/css/print/pdf.css' : '../reveal.js-3.0.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js-3.0.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>Crowdfunding DAO</h1>
+          <p><small>Projects Crowdfunding in a New Way</small></p>
+        </section>
+
+        <section>
+          <h2>又一个众筹平台?</h2>
+          <p>大家都有参与过众筹项目吗? 有没有遇到过如下问题?</p>
+          <ul>
+            <li>延迟交付甚至不交付</li>
+            <li>交付品货不对版, 质量低下</li>
+            <li>资金管理和服务依赖于中心化平台</li>
+            <li class="fragment">在 Kickstarter 上延迟交付的项目比例高达 85%，而未能兑换交付承诺的比例为 14%</li>
+            <li class="fragment">Kickstarter 不介入用户间的任何争端, 不监督项目的表现或准时性 (使用条款)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>DAO 能帮助我们做什么?</h2>
+          <p>去中心化自治组织(DAO)是一种项目融资、社区治理和价值分享的新方式</p>
+          <ul>
+            <li>代码就是法律</li>
+            <li>资产掌握在个体手上而非平台</li>
+            <li>能够协调个体进行投票决策</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>在 CKB 上实现 Crowdfunding DAO</h2>
+          <p>在介绍流程之前, 介绍一下几个名词</p>
+          <ul>
+            <li>Backer: 项目出资人</li>
+            <li>Creator: 众筹项目发起方</li>
+            <li>Delivery: 交付成果</li>
+            <li>Pledge: 出资人的认捐行为</li>
+            <li>Milestone: 项目里程碑</li>
+            <li>Bounty: 项目完成某个里程碑之后可以获得的奖励</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>流程</h2>
+          <p>发起项目</p>
+          <pre>
+            ┌───────┐        ┌───────┐  Pledge ┌──────┐
+            │Creator├───────►│Project│◄────────┤Backer│
+            └───────┘        └───────┘         └──────┘
+                               │
+                               │
+                            ┌──▼───┐
+                            │C-Cell│
+                            └──────┘
+          </pre>
+          <ul>
+            <li>项目描述, 筹资目标, Delivery, Milestone</li>
+            <li>C-Cell 是由合约创建的链上数据</li>
+            <li>在筹资目标时间结束后, 达到了筹资目标的金额, 那么认捐阶段结束, 进入到下一个流程</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>C-Cell</h2>
+          <p>C-Cell 是一个具有 TypeID 行为, 只记录了基本信息的 TX Output</p>
+          <pre><code>
+struct MilestoneInfo {
+    time: u64,  // epoch, from the c-cell
+    amount: u32, // give it to creator, the unit is CKB
+    approval_ratio_threshold: u8, // 0 ~ 10, e.g. 6 means 60% of the votes in favor can be passed
+}
+
+struct CrowdfundingInfo {
+    pledge_time: u64,                   // epoch, from the c-cell
+    pledge_threshold: u32,              // threshold for starting a project, the unit is CKB
+    startup_amount: u32,                // start-up capital for creators
+    milestones: Vec&lt;MilestoneInfo&gt;,     // milestones
+}
+</code></pre>
+        </section>
+
+        <section>
+          <h2>C-Cell</h2>
+          <p>创建 C-Cell</p>
+          <pre><code>
+output:
+  lock_script: DAO script
+  type_script: args = TypeID(args) + Hash(creator_lock_script + output_data)
+
+output_data: 基本信息数据
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Pledge</h2>
+          <pre><code>
+tx:
+  cell_deps: C-Cell
+  outputs:
+    lock_script: DAO script, args = backer_pubkey_hash + dao_pubkey_hash
+          </code></pre>
+          <ul>
+            <li>筹款目标时间到达之前, Backer 自由解锁</li>
+            <li>时间到达之后, 聚合 + 转账</li>
+            <li>聚合过程受到 DAO script 的约束</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>流程</h2>
+          <pre>
+  ┌──────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐     ┌───────┐
+  │Backer│    │Milestone1│    │Milestone2│    │Milestone3│     │Creator│
+  └──┬───┘    └───────┬──┘    └──────────┘    └──────────┘     └───────┘
+     │           ▲    │                                             ▲
+     │  Voting   │    │                                             │
+     └───────────┘    └─────────────────────────────────────────────┘
+          </pre>
+          <ul>
+            <li>Backer 通过投票来决定整个项目是否要进入到下一个 Milestone</li>
+            <li>通过: Milestone 对应的金额将会全数转给 Creator, 项目进入到下一个 Milestone</li>
+            <li>没有通过: 金额全数退还给 Backer, 项目终止</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Milestone Voting</h2>
+<ul>
+  <li>Milestone 窗口期内, Backer 自行解锁自己的 cell，通过 output data 投票</li>
+  <li>Milestone 窗口期后, DAO 做链下聚合</li>
+  <li>聚合过程受到 DAO script 的约束</li>
+</ul>
+        </section>
+
+        <section>
+          <h2>DEMO</h2>
+          <img src="1.png" width="50%"/>
+        </section>
+
+        <section>
+          <h2>DEMO</h2>
+          <img src="2.png" width="50%"/>
+        </section>
+
+        <section>
+          <h2>C-Cell</h2>
+          <p><a href="https://pudge.explorer.nervos.org/transaction/0xf11bea8175db5f93fa81ecbab20a14b155290f1450b2e396fbe2111172eb42e7">0xf11b...42e7</a></p>
+          0x00000000650a3600000003e8...
+          <table>
+            <tr>
+              <td>00000000650a3600</td>
+              <td>2023-09-20</td>
+            </tr>
+            <tr>
+              <td>000003e8</td>
+              <td>1000</td>
+            </tr>
+            <tr>
+              <td>...</td>
+              <td>...</td>
+            </tr>
+          </table>
+        </section>
+
+        <section>
+          <h2>DEMO</h2>
+          <img src="3.png" width="50%"/>
+        </section>
+
+        <section>
+          <h2>Pledge Tx</h2>
+          <ul>
+            <li>Pledge Tx 1: <a href="https://pudge.explorer.nervos.org/transaction/0x1cd643085cd9c098da2be18cbd5614706037db0a91c9de50336633ee112161b3">0x1cd6...61b3</a></li>
+            <li>Pledge Tx 2: <a href="https://pudge.explorer.nervos.org/transaction/0xd5af5b7ef348e680342296464d3acd6d5065acec9d67a86c2d5bedc2cbcd2455">0xd5af...2455</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>代码</h2>
+          <ul>
+            <li>前端: <a href="zhb666/zeroKnowledge">zhb666/zeroKnowledge</a></li>
+            <li>后端和聚合: <a href="https://github.com/fjchen7/ckb-crowdfunding">fjchen7/ckb-crowdfunding</a></li>
+            <li>合约: <a href="https://github.com/EthanYuan/ckb-project-type-id">EthanYuan/ckb-project-type-id</a> 和 <a href="https://github.com/EthanYuan/ckb-crowdfunding-script">EthanYuan/ckb-crowdfunding-script</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>更多的工作</h2>
+          <ul>
+            <li>更多的去中心化 (IPFS集成, 聚合机制, etc)</li>
+            <li>DAO sUDT</li>
+            <li>社区监督和治理</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>众筹行业前景</h2>
+          <ul>
+            <li>全球众筹总金额: 百万亿美元级别</li>
+            <li>社会影响: Oculus (VR 行业) / Pebble (智能手表行业)</li>
+            <li>DAO: 接触到更多的 Backer / Creator</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>致投资人</h2>
+          <img src="1.webp"/>
+        </section>
+
+        <section>
+          <h2>Team</h2>
+          <ul>
+            <li>雄霖: 前端</li>
+            <li>峰俊: 后端</li>
+            <li>承兴: 合约</li>
+            <li>Quake: PPT</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Q & A</h2>
+        </section>
+      </div>
+    </div>
+
+    <script src="../reveal.js-3.0.0/lib/js/head.min.js"></script>
+    <script src="../reveal.js-3.0.0/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js-3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js-3.0.0/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/math/math.js', async: true },
+          { src: '../reveal.js-3.0.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
